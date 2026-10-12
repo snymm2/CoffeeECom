@@ -5,10 +5,9 @@ import Row from "react-bootstrap/Row";
 function App() {
   return (
     <>
-      <Container className="d-flex min-vh-100 flex-column justify-content-center">
-        <Row className="justify-content-center align-items-center">
-          <Counter></Counter>
-        </Row>
+      <Container className="d-flex flex-column min-vh-100 align-items-center justify-content-center gap-3">
+        <Counter step={5}>
+        </Counter>
       </Container>
     </>
   )
