@@ -2,10 +2,14 @@ import { useEffect, useState } from "react";
 import Form from "react-bootstrap/Form"
 
 function ModeSwitcher() {
-    const [theme, setTheme] = useState("light");
+    const [theme, setTheme] = useState(() => {
+        const osThemePreference = (window.matchMedia('(prefers-color-scheme: dark)').matches) ? "dark" : "light";
+        return localStorage.getItem("theme") || osThemePreference;
+    });
 
     useEffect(() => {
         document.documentElement.setAttribute('data-bs-theme', theme);
+        localStorage.setItem("theme", theme);
     }, [theme])
 
     function handleToggleTheme() {
@@ -41,17 +45,15 @@ function ModeSwitcher() {
                         <li className="list-group-item">Notifications</li>
                         <li className="list-group-item">Privacy</li>
                         <li className="list-group-item">Language</li>
-                        <li className="list-group-item form-switch d-flex justify-content-between">
+                        <li className="list-group-item d-flex justify-content-between">
                             Dark Mode
-                            <Form>
-                                <Form.Check
-                                    type="switch"
-                                    id="switch-mode-toggle"
-                                    onClick={ handleToggleTheme } />
-                            </Form>
+                            <Form.Check
+                                type="switch"
+                                id="switch-mode-toggle"
+                                onChange={ handleToggleTheme }
+                                checked={theme === "dark"} />
                         </li>
                     </ul>
-
                 </div>
             </div>
         </div>
