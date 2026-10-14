@@ -1,11 +1,11 @@
 import Container from "react-bootstrap/Container";
-import ModeSwitcher from "./ModeSwitcher";
+import ToDoList from "./ToDoList";
 
 function App() {
   return (
     <>
-      <Container className="d-flex w-50 h-100 align-items-center justify-content-center">
-        <ModeSwitcher />
+      <Container className="w-50 h-100">
+        <ToDoList />
       </Container>
     </>
   )
