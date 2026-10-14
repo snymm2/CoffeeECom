@@ -1,37 +1,60 @@
 import { useState } from "react";
 
-function ToDoListItem({toDoInfo, handleCheck, handleEdit, handleDelete}) {
+function ToDoListItem({toDoInfo, onCheck, onEdit, onDelete}) {
 
     const [editMode, setEditMode] = useState(false);
     const [tempTask, setTempTask] = useState('');
 
     const handleCheckboxChange = () => {
-        handleCheck(toDoInfo.id);
+        onCheck(toDoInfo.id);
     }
 
     const handleEditButton = () => {
         if (editMode) {
-            handleEdit(toDoInfo.id, tempTask);
+
+            const updatedTask = tempTask.trim();
+
+            if (!updatedTask) {
+                setEditMode(false);
+                setTempTask("");
+                return;
+            }
+
+            onEdit(toDoInfo.id, updatedTask);
             setEditMode(false);
             setTempTask('');
         } else {
             setEditMode(true);
-            setTempTask(toDoInfo.task);
+            setTempTask(currentValue => toDoInfo.task);
         }
     }
 
     const handleDeleteButton = () => {
-        handleDelete(toDoInfo.id);
+        onDelete(toDoInfo.id);
     }
 
     const handleTaskValueChange = (event) => {
-        setTempTask(event.target.value)
+        setTempTask(currentValue => event.target.value)
     }
 
     const handleFormSubmit = (event) => {
         event.preventDefault();
 
-        handleEditButton();
+        if (!editMode) {
+            return;
+        }
+
+        const updatedTask = tempTask.trim();
+
+        if (!updatedTask) {
+            setEditMode(false);
+            setTempTask("");
+            return;
+        }
+
+        onEdit(toDoInfo.id, updatedTask);
+        setEditMode(false);
+        setTempTask('');
     }
 
     return (
@@ -47,20 +70,11 @@ function ToDoListItem({toDoInfo, handleCheck, handleEdit, handleDelete}) {
                     className="m-2">
                 </input>
 
-                {!editMode && toDoInfo.completed && (
-                    <input 
-                        className="m-auto border-0 text-decoration-line-through form-control-plaintext px-4 fw-bold"
-                        type="text"
-                        value={toDoInfo.task}
-                        disabled/>
-                )}
-
-                {!editMode &&!toDoInfo.completed && (
-                    <input
-                        className="m-auto border-0 form-control-plaintext px-4 fw-bold"
-                        type="text"
-                        value={toDoInfo.task}
-                        disabled />
+                {!editMode && (
+                    <span
+                        className={`m-auto border-0 px-4 fw-bold ${toDoInfo.completed ? "text-decoration-line-through" : ""}`}>
+                        { toDoInfo.task }
+                    </span>
                 )}
 
                 {editMode && (
@@ -68,9 +82,9 @@ function ToDoListItem({toDoInfo, handleCheck, handleEdit, handleDelete}) {
                         className="m-auto form-control px-4 fw-bold"
                         type="text"
                         value={tempTask}
-                        onChange={ handleTaskValueChange }/>
+                        onChange={ handleTaskValueChange }
+                        required/>
                 )}
-
 
                 <button 
                     type="button"

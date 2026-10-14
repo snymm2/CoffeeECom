@@ -1,29 +1,31 @@
 import Stack from 'react-bootstrap/Stack'
 import ToDoListItem from './ToDoListItem';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function ToDoList() {
 
-    const [toDoItems, setToDoItems] = useState([
-        {
-            id: 0,
-            task: "Learn Java",
-            completed: false
-        }
-    ]);
+    const [toDoItems, setToDoItems] = useState([]);
+    const [itemsFilter, setItemsFilter] = useState('all');
 
     const handleTaskStatusChange = (itemId) => {
-        setToDoItems(toDoItems.map(toDoItem =>
-            toDoItem.id === itemId ? { ...toDoItem, completed: !toDoItem.completed} : toDoItem
+        setToDoItems(currentToDoItems => 
+            currentToDoItems.map(toDoItem =>
+                toDoItem.id === itemId ? { ...toDoItem, completed: !toDoItem.completed} : toDoItem
         ));
     };
 
     const handleTaskAdd = (event) => {
         event.preventDefault();
 
+        const updatedTask = event.target.task.value.trim();
+
+        if (!updatedTask) {
+            return;
+        }
+
         const newToDoItem = {
-            id: Math.random().toString(36).substring(2),
-            task: event.target.task.value,
+            id: crypto.randomUUID(),
+            task: updatedTask,
             completed: false
         }
 
@@ -33,16 +35,22 @@ function ToDoList() {
     };
 
     const handleItemDelete = (itemId) => {
-        setToDoItems(toDoItems.filter(toDoItem => toDoItem.id !== itemId))
+        setToDoItems(currentToDoItems => 
+            currentToDoItems.filter(toDoItem => 
+                toDoItem.id !== itemId))
     };
 
     const handleItemUpdate = (itemId, newItemTask) => {
-        setToDoItems(toDoItems.map(todoItem => 
+        setToDoItems(currentToDoItems => currentToDoItems.map(todoItem => 
             todoItem.id === itemId ? {...todoItem, task: newItemTask} : todoItem
         ));
     }
 
-    return (
+    const handleFilterUpdate = (event) => {
+        setItemsFilter(currentValue => event.target.value);
+    }
+
+    return  (
         <div className="todolist d-flex flex-column justify-content-between align-items-center w-auto">
             <div
                 className="todolist-additem m-4 shadow-sm rounded-3 border w-75 text-center">
@@ -55,7 +63,7 @@ function ToDoList() {
                                 className="todolist-additem-field form-control border-0"
                                 placeholder="Add an Item"
                                 name='task'
-                                ></input>
+                                required />
                             <button 
                                 type="submit"
                                 className="btn btn-outline-none fw-bolder">
@@ -67,18 +75,74 @@ function ToDoList() {
                     </form>
             </div>
             <div
-                className="todolist-items m-4 p-2 shadow-sm rounded-3 border w-75">
+                className='todolist-filter shadow-sm rounded-3 border w-75'>
+                    <div className='d-flex justify-content-around'>
+                        <input
+                            type="radio"
+                            id="filterAll"
+                            className="btn-check"
+                            name="filter"
+                            value="all"
+                            checked={itemsFilter === 'all'}
+                            onChange={ handleFilterUpdate }/>
+                        <label 
+                            htmlFor="filterAll"
+                            className='btn btn-outline-primary'>All</label>
 
-                    { toDoItems.map((toDoItem) => (
-                        <ToDoListItem 
-                            key={toDoItem.id}
-                            toDoInfo={toDoItem}
-                            handleCheck={ handleTaskStatusChange }
-                            handleEdit={ handleItemUpdate }
-                            handleDelete={ handleItemDelete }></ToDoListItem>
-                    ))}
+                        <input
+                            type="radio"
+                            id="filterComplete"
+                            className="btn-check"
+                            name="filter"
+                            value="complete"
+                            checked={itemsFilter === 'complete'}
+                            onChange={handleFilterUpdate}/>
+                        <label 
+                            htmlFor="filterComplete"
+                            className='btn btn-outline-primary'>Completed</label>
 
+                        <input
+                            type="radio"
+                            id="filterIncomplete"
+                            className="btn-check"
+                            name="filter"
+                            value="incomplete"
+                            checked={itemsFilter === 'incomplete'}
+                            onChange={ handleFilterUpdate }/>
+                        <label 
+                            htmlFor="filterIncomplete"
+                            className='btn btn-outline-primary'>Incomplete</label>
+                    </div>
             </div>
+            {
+                toDoItems.length > 0 ? (
+                    <div
+                        className="todolist-items m-4 p-2 shadow-sm rounded-3 border w-75">
+                            {
+                                toDoItems.filter((todoItem) => {
+                                    if (itemsFilter === "all") {
+                                        return true;
+                                    }
+                                    if (itemsFilter === "complete") {
+                                        return todoItem.completed;
+                                    }
+                                    if (itemsFilter === "incomplete") {
+                                        return !todoItem.completed;
+                                    }
+                                    return false;
+                                    }).map((toDoItem) => (
+                                        <ToDoListItem
+                                            key={toDoItem.id}
+                                            toDoInfo={toDoItem}
+                                            onCheck={handleTaskStatusChange}
+                                            onEdit={handleItemUpdate}
+                                            onDelete={handleItemDelete} />
+                                ))
+                            }
+                    </div>
+                ) : null
+            }
+
         </div>
     )
 }
