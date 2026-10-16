@@ -4,27 +4,31 @@ function ProductCard({ productInfo }) {
 
     const updatedImageUrl = productInfo.imageUrl ? productInfo.imageUrl : "/storefront/Default_Product_Image.png";
     const discountAmount = productInfo.price * productInfo.discountPercent;
+
     return (
-        
+
        <Card
-            className='shadow-sm rounded-3 m-4 card-primary h-100'>
+            className='shadow rounded-3 card-primary h-100'>
             <div
-                className='h-60 position-relative'>
+                className='position-relative'>
                 <Card.Img
                     variant='top'
                     src={updatedImageUrl}
-                    alt={`Display Image of ${productInfo.name}`}
+                    alt={`${productInfo.name} Product Display`}
                     className='w-100'
-                    style={{ objectFit: 'cover' }}>
+                    style={{ objectFit: 'contain', height: "250px" }}
+                    onError={(event) => {
+                        event.currentTarget.onerror = null;
+                        event.currentTarget.src="./storefront/Default_Product_Image.png";
+                    }}>
                 </Card.Img>
-
                 {
                     (productInfo.discountPercent > 0) ? (
                         <Card.ImgOverlay
                             className='d-flex justify-content-end align-items-start'>
                             <Card.Text
                                 className='rounded-pill bg-dark text-light px-2'>
-                                {`${productInfo.discountPercent * 100}%`}
+                                {`${(productInfo.discountPercent * 100).toFixed(0)}%`}
                             </Card.Text>
                         </Card.ImgOverlay>
                     ) : null
@@ -32,24 +36,26 @@ function ProductCard({ productInfo }) {
                 
             </div>
             <Card.Body
-                className='border-top border-2 h-40'>
+                className='border-top border-2 h-50 d-flex flex-column justify-content-start'>
                 <Card.Title
                     className='fw-bold fs-4 text-truncate'>{productInfo.name}</Card.Title>
                 <Card.Subtitle>{productInfo.brand}</Card.Subtitle>
-                <Card.Text
-                    className='m-auto'>
+                <div>
                     <Card.Img
                         src="/storefront/Rating_Icon.png"
+                        alt=""
+                        aria-hidden="true"
                         style={{width: "24px", height: "24px"}}>
                     </Card.Img>
-                    {` ${productInfo.ratingAvg} (${productInfo.ratingTotal})`}
-                </Card.Text>
-                <Card.Text
-                    className='m-auto fs-5 fw-bold'>
+                    <span>
+                        {` ${productInfo.ratingAvg} (${productInfo.ratingTotal} reviews)`}
+                    </span>
+                </div>
+                <Card.Text className='fs-5 fw-bold'>
                     {
                         (discountAmount > 0) ? (
                             <>
-                                {`Rs. ${productInfo.price} `}
+                                {`Rs. ${productInfo.price - discountAmount} `}
                                 <span className='text-decoration-line-through'>
                                     {`(${productInfo.price})`}
                                 </span>
@@ -61,7 +67,7 @@ function ProductCard({ productInfo }) {
                     
                 </Card.Text>
                 <Button
-                    className='d-flex btn-outline text-dark mt-4 mx-auto'>
+                    className='d-flex btn-outline text-dark mt-auto mx-auto'>
                     <Image
                         src="/storefront/Cart_Icon.png"
                         style={{ width: "24px", height: "24px" }}>
