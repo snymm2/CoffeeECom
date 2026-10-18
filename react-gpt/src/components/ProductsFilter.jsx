@@ -2,65 +2,23 @@ import { useEffect, useState } from "react";
 
 import { Card, Form, InputGroup } from "react-bootstrap";
 
-function ProductsFilter({ title, filterData, onFilter }) {
-    const [searchQuery, setSearchQuery] = useState("")
-
-    const [filters, setFilters] = useState(
-        Object.fromEntries(
-            filterData.map((filter) => {
-                if (filter.filterType === "Checkbox") {
-                    const filterState = {
-                        active: false,
-                        type: filter.filterType,
-                        targets: []
-                    }
-                    return [filter.filterName, filterState];
-                } else if (filter.filterType === "Range") {
-                    const filterState = {
-                        active: false,
-                        type: filter.filterType,
-                        min: filter.filterMin,
-                        max: filter.filterMax
-                    }
-                    return [filter.filterName, filterState];
-                }
-            })
-        )
-    );
+function ProductsFilter({ title, filterData, onFilter, onSearch }) {
 
     const handleSearchQuery = (event) => {
-        setSearchQuery(event.target.value);
+        onSearch(event.target.value);
     }
 
     const handleCheck = (event) => {
-        const filterName = event.target.name;
         if (event.target.type === "checkbox")
         {
-            if (event.target.checked) {
-                setFilters(currentValue => ({
-                    ...currentValue,
-                    [filterName]: {
-                        ...currentValue[filterName],
-                        active: true,
-                        targets: [...currentValue[filterName].targets, event.target.value]
-                    }
-                }));
-            } else {
-                setFilters(currentValue => ({
-                    ...currentValue,
-                    [filterName]: {
-                        ...currentValue[filterName],
-                        targets: currentValue[filterName].targets.filter(target => target !== event.target.value),
-                        active: (currentValue[filterName].targets.length === 1) ? false : true
-                    }
-                }))
-            }
+            onFilter({
+                filterName: event.target.name,
+                filterType: "Checkbox",
+                checked: event.target.checked,
+                value: event.target.value
+            })
         }
     }
-
-    useEffect(() => {
-        onFilter(searchQuery, filters)
-    }, [searchQuery, filters])
     
     return (
         <>
@@ -70,7 +28,6 @@ function ProductsFilter({ title, filterData, onFilter }) {
                 type="search"
                 placeholder={`Search ${title.toLowerCase()}...`}
                 aria-label={`Search ${title}`}
-                value={searchQuery}
                 onChange={ handleSearchQuery }/>
         </InputGroup>
         {
