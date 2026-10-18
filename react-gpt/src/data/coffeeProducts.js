@@ -190,13 +190,13 @@ const giftProducts = createProducts("gift", "equipment", [
 
 const apparelProducts = createProducts("apparel", "merch", [
     ["Barista Apron", "BaristaWorks", "Apparel", 1800, 0.05, 4.5, 68, 16, "Apron", ["S", "M", "L", "XL"], "Black", "Cotton blend"],
-    ["Coffee Art Notebook", "CupCulture", "Apparel", 550, 0, 4.4, 59, 35, "Notebook", ["A5"], "Brown", "Recycled paper"],
+    ["Coffee Art Notebook", "CupCulture", "Goodies", 550, 0, 4.4, 59, 35, "Notebook", ["A5"], "Brown", "Recycled paper"],
     ["Coffee Club T-Shirt", "CupCulture", "Apparel", 1200, 0.10, 4.6, 82, 22, "T-shirt", ["S", "M", "L", "XL"], "Cream", "Cotton"],
     ["Barista Baseball Cap", "BaristaWorks", "Apparel", 850, 0.05, 4.3, 47, 19, "Cap", ["One size"], "Black", "Cotton"],
     ["Coffee Beans Tote Bag", "EcoBrew", "Apparel", 650, 0.08, 4.5, 61, 28, "Tote bag", ["One size"], "Natural", "Canvas"],
     ["Coffee-Themed Hoodie", "CupCulture", "Apparel", 2400, 0.10, 4.7, 53, 11, "Hoodie", ["S", "M", "L", "XL"], "Brown", "Cotton blend"],
-    ["Barista Pin Set", "BaristaWorks", "Apparel", 400, 0, 4.2, 36, 45, "Pin set", ["One size"], "Multicolor", "Metal"],
-    ["Reusable Coffee Shopping Bag", "EcoBrew", "Apparel", 500, 0.05, 4.4, 58, 33, "Shopping bag", ["One size"], "Green", "Recycled fabric"]
+    ["Barista Pin Set", "BaristaWorks", "Goodies", 400, 0, 4.2, 36, 45, "Pin set", ["One size"], "Multicolor", "Metal"],
+    ["Reusable Coffee Shopping Bag", "EcoBrew", "Goodies", 500, 0.05, 4.4, 58, 33, "Shopping bag", ["One size"], "Green", "Recycled fabric"]
 ], ([merchandiseType, sizes, color, material]) => ({
     merchandiseType, sizes, color, material
 }));

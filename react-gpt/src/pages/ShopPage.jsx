@@ -5,74 +5,31 @@ import { Container, InputGroup, Row, Form } from "react-bootstrap";
 import ProductsFilter from "../components/ProductsFilter";
 import ProductDisplay from "../components/ProductDisplay";
 
-const filters = {
-    "coffee": [
-        {
-            filterName: "type",
-            filterLabel: "Types",
-            filterType: "Checkbox",
-            filterSubcategories: ["Coffee Beans", "Ground Coffee", "Instant Coffee", "Syrups"]
-        },
-        {
-            filterName: "brand",
-            filterLabel: "Brands",
-            filterType: "Checkbox",
-            filterSubcategories: ["Nations", "Himalayan Brew", "Everest Roasters", "Origin Select", "Bold Bean", "Daily Grind", "Green Mountain"]
-        },
-        {   
-            filterName: "coffeeType",
-            filterLabel: "Coffee Type",
-            filterType: "Checkbox",
-            filterSubcategories: ["Arabica", "Robusta", "Blend"]
-        },
-        {   
-            filterName: "price",
-            filterLabel: "Price Range",
-            filterType: "Range",
-            filterMin: 0,
-            filterMax: 100
-        },
-    ],
-    "equipment": [
-        {
-            filterName: "Types",
-            filterType: "Checkbox",
-            filterSubcategories: ["Category 1", "Category 2", "Category 3", "Category 4"]
-        },
-        {
-            filterName: "Brands",
-            filterType: "Checkbox",
-            filterSubcategories: ["Brand 1", "Brand 2", "Brand 3", "Brand 4"]
-        },
-        {
-            filterName: "Price Range",
-            filterType: "Range",
-            filterMin: 0,
-            filterMax: 100
-        },
-    ],
-    "merch": [
-        {
-            filterName: "Categories",
-            filterType: "Checkbox",
-            filterSubcategories: ["Category 1", "Category 2", "Category 3", "Category 4"]
-        },
-        {
-            filterName: "Brands",
-            filterType: "Checkbox",
-            filterSubcategories: ["Brand 1", "Brand 2", "Brand 3", "Brand 4"]
-        },
-        {
-            filterName: "Price Range",
-            filterType: "Range",
-            filterMin: 0,
-            filterMax: 100
-        },
-    ]
-};
+import filters from "../data/filters";
     
 function ShopPage({ title, category, products}) {
 
+    const actualFilters = filters[category]
+
+    const filterNames = filters[category].map(filter => filter.filterName)
+
+    products.forEach(product => {
+
+        for (const [key, value] of Object.entries(product)) {
+            if (filterNames.includes(key)) {
+                const newFilter = actualFilters.find(filter => filter.filterName === key)
+
+                if (newFilter.filterType === "Checkbox") {
+
+                    if (!newFilter.filterSubcategories.includes(value)) {
+                        newFilter.filterSubcategories.push(value)
+                    }
+
+                }    
+            }
+        }
+    })
+    
     const [searchQuery, setSearchQuery] = useState('');
 
     const [filterOptions, setFilterOptions] = useState(
@@ -124,7 +81,7 @@ function ShopPage({ title, category, products}) {
         }
     }
 
-    console.log(filterOptions)
+    // console.log(filterOptions)
 
     const visibleProducts = products.filter(product => {
         if (!product.name.toLowerCase().includes(searchQuery.toLowerCase()) 
