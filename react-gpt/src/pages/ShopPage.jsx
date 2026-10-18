@@ -9,32 +9,39 @@ import filters from "../data/filters";
     
 function ShopPage({ title, category, products}) {
 
-    const actualFilters = filters[category]
+    const actualFilters = [];
 
-    const filterNames = filters[category].map(filter => filter.filterName)
+    filters[category].forEach((filter) => {
+        if (filter.filterType === "Checkbox") {
+            const availables = [...new Set(products.map(product => product[filter.filterName]).filter(Boolean))]
 
-    products.forEach(product => {
-
-        for (const [key, value] of Object.entries(product)) {
-            if (filterNames.includes(key)) {
-                const newFilter = actualFilters.find(filter => filter.filterName === key)
-
-                if (newFilter.filterType === "Checkbox") {
-
-                    if (!newFilter.filterSubcategories.includes(value)) {
-                        newFilter.filterSubcategories.push(value)
-                    }
-
-                }    
+            const actualFilter = {
+                ...filter,
+                filterSubcategories: availables
             }
+
+            actualFilters.push(actualFilter);
+        } else if (filter.filterType === "Range") {
+
+            const values = products.map(product => product[filter.filterName]).filter(Number.isFinite);
+            const minValue = values.length ? Math.min(...values) : 0;
+            const maxValue = values.length ? Math.max(...values) : 0;
+
+            const actualFilter = {
+                ...filter,
+                filterMin: minValue,
+                filterMax: maxValue,
+            }
+
+            actualFilters.push(actualFilter);
         }
     })
-    
+
     const [searchQuery, setSearchQuery] = useState('');
 
     const [filterOptions, setFilterOptions] = useState(
         Object.fromEntries(
-            filters[category].map((filter) => {
+            actualFilters.map((filter) => {
                 if (filter.filterType === "Checkbox") {
                     const filterState = {
                         active: false,
@@ -44,10 +51,11 @@ function ShopPage({ title, category, products}) {
                     return [filter.filterName, filterState];
                 } else if (filter.filterType === "Range") {
                     const filterState = {
-                        active: false,
+                        active: true,
                         type: filter.filterType,
                         min: filter.filterMin,
-                        max: filter.filterMax
+                        max: filter.filterMax,
+                        current: filter.filterMax
                     }
                     return [filter.filterName, filterState];
                 }
@@ -56,7 +64,7 @@ function ShopPage({ title, category, products}) {
     );
 
     const handleSearchQueryChange = (newValue) => {
-        setSearchQuery(currentValue => newValue);
+        setSearchQuery(newValue);
     }
 
     const handleFilterOptionsChange = (filterOption) => {
@@ -78,14 +86,23 @@ function ShopPage({ title, category, products}) {
                     }
                 }  
             })
+        } else if (filterOption.filterType === "Range") {
+            setFilterOptions(currentValue => {
+                const previous = currentValue[filterOption.filterName];
+                return {
+                    ...currentValue,
+                    [filterOption.filterName]: {
+                        ...previous,
+                        current: filterOption.value
+                    }
+                }
+            })
         }
     }
 
-    // console.log(filterOptions)
-
     const visibleProducts = products.filter(product => {
         if (!product.name.toLowerCase().includes(searchQuery.toLowerCase()) 
-            && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+            && !product.brand.toLowerCase().includes(searchQuery.toLowerCase())) {
                 return false;
         }
 
@@ -93,6 +110,11 @@ function ShopPage({ title, category, products}) {
             if (value["active"]) {
                 if (value["type"] === "Checkbox") {
                     if (!value["targets"].includes(product[key])) {
+                        return false;
+                    }
+                }
+                if (value["type"] === "Range") {
+                    if (product[key] > value["current"]) {
                         return false;
                     }
                 }
@@ -109,14 +131,16 @@ function ShopPage({ title, category, products}) {
                     className="col-12 col-md-4 col-lg-3">
                     
                     <ProductsFilter 
-                        title={title} 
-                        filterData={filters[category]}
+                        title={title}
+                        key={category}
+                        filterData={ actualFilters }
+                        filterOptions={filterOptions}
                         onFilter={ handleFilterOptionsChange }
                         onSearch={ handleSearchQueryChange }/>
                 </aside>
                 <main
                     className="col-12 col-md-8 col-lg-9">
-                    <ProductDisplay title={title} productCards={visibleProducts}></ProductDisplay>
+                    <ProductDisplay key={category} title={title} productCards={visibleProducts}></ProductDisplay>
                 </main>
             </Row>
         </Container>

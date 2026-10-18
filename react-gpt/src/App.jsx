@@ -16,9 +16,9 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Navigate to="/coffee" replace />} />
-        <Route path="/coffee" element={<ShopPage title="Coffee Products" category="coffee" products={products.filter(product => product.category === "coffee")}/>} />
-        <Route path="/equipment" element={<ShopPage title="Equipment" category="equipment" products={products.filter(product => product.category === "equipment")} />} />
-        <Route path="/merch" element={<ShopPage title="Merchandise" category="merch" products={products.filter(product => product.category === "merch")} />} />
+        <Route path="/coffee" element={<ShopPage title="Coffee Products" key="coffee" category="coffee" products={products.filter(product => product.category === "coffee")}/>} />
+        <Route path="/equipment" element={<ShopPage title="Equipment" key="equipment" category="equipment" products={products.filter(product => product.category === "equipment")} />} />
+        <Route path="/merch" element={<ShopPage title="Merchandise" key="merch" category="merch" products={products.filter(product => product.category === "merch")} />} />
       </Routes>
     </BrowserRouter>
   )
