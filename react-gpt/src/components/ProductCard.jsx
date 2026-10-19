@@ -19,7 +19,7 @@ function ProductCard({ productInfo }) {
                     style={{ objectFit: 'contain', height: "250px" }}
                     onError={(event) => {
                         event.currentTarget.onerror = null;
-                        event.currentTarget.src="./storefront/Default_Product_Image.png";
+                        event.currentTarget.src="/storefront/Default_Product_Image.png";
                     }}>
                 </Card.Img>
                 {

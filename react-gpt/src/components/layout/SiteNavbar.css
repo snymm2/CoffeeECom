@@ -1,0 +1,151 @@
+.site-header {
+    background-color: #F5F0E6;
+    color: #3B2A22;
+    position: relative;
+    z-index: 1000;
+}
+
+/* Top global bar */
+.site-global-bar {
+    padding: 0.45rem 0;
+    border-bottom: 1px solid #D9C5A3;
+    font-size: 0.8rem;
+}
+
+.site-tagline {
+    color: #3B2A22;
+}
+
+.site-global-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0 !important;
+    color: #3B2A22 !important;
+    text-decoration: none;
+}
+
+.site-global-link:hover,
+.site-main-links .nav-link:hover,
+.site-context-nav .nav-link:hover {
+    color: #B96F45 !important;
+}
+
+.site-cart-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.25rem;
+    border-radius: 50%;
+    background-color: #3B2A22;
+    color: #F5F0E6;
+    font-size: 0.7rem;
+}
+
+/* Main navigation */
+.site-main-nav {
+    border-bottom: 1px solid #D9C5A3;
+}
+
+.site-main-nav>.container,
+.site-main-nav>.container-fluid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+}
+
+.site-main-links {
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.site-main-links:last-child {
+    justify-content: flex-end;
+}
+
+.site-main-links .nav-link {
+    color: #3B2A22;
+    font-size: 0.9rem;
+}
+
+.site-logo {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+}
+
+.site-logo img {
+    display: block;
+    width: 150px;
+    max-width: 100%;
+    height: auto;
+    max-height: 70px;
+    object-fit: contain;
+}
+
+/* Contextual navigation */
+.site-context-nav {
+    border-bottom: 1px solid #D9C5A3;
+}
+
+.site-context-nav .nav-link {
+    padding: 0.65rem 1rem;
+    color: #3B2A22;
+    font-size: 0.85rem;
+}
+
+.site-context-nav .nav-link.active,
+.site-main-links .nav-link.active {
+    color: #B96F45 !important;
+    font-weight: 600;
+}
+
+/* Mobile controls */
+.site-menu-toggle,
+.site-mobile-cart {
+    padding: 0.25rem;
+    color: #3B2A22;
+    text-decoration: none;
+}
+
+.site-mobile-drawer {
+    background-color: #F5F0E6;
+    color: #3B2A22;
+}
+
+.site-mobile-drawer .nav-link {
+    padding: 0.7rem 0;
+    color: #3B2A22;
+}
+
+.site-mobile-drawer .nav-link.active {
+    color: #B96F45;
+    font-weight: 600;
+}
+
+@media (max-width: 991.98px) {
+
+    .site-main-nav>.container,
+    .site-main-nav>.container-fluid {
+        grid-template-columns: 1fr auto 1fr;
+    }
+
+    .site-logo img {
+        width: 125px;
+        max-height: 58px;
+    }
+
+    .site-mobile-cart {
+        justify-self: end;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+    .site-header a,
+    .site-header button {
+        transition: color 160ms ease;
+    }
+}

@@ -1,11 +1,12 @@
 import { useState } from "react";
 
-import { Container, InputGroup, Row, Form } from "react-bootstrap";
+import { Container, Row } from "react-bootstrap";
 
 import ProductsFilter from "../components/ProductsFilter";
 import ProductDisplay from "../components/ProductDisplay";
 
 import filters from "../data/filters";
+import SiteNavbar from "../components/layout/SiteNavbar";
     
 function ShopPage({ title, category, products}) {
 
@@ -125,7 +126,13 @@ function ShopPage({ title, category, products}) {
     })
 
     return (
-        <Container>
+        <>
+        <SiteNavbar context="shop" cartCount={0} />
+
+        <Container
+            className="py-4"
+            fluid
+            style={{backgroundColor: "#F5F0E6"}}>
             <Row>
                 <aside
                     className="col-12 col-md-4 col-lg-3">
@@ -144,6 +151,7 @@ function ShopPage({ title, category, products}) {
                 </main>
             </Row>
         </Container>
+        </>
     )
 }
 

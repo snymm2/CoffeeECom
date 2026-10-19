@@ -11,7 +11,6 @@ function ProductsFilter({ title, filterData, filterOptions, onFilter, onSearch }
     return (
         <>
         <SearchFilter title={title} onSearch={onSearch}/>
-
         {
             filterData.map((filter) => {
                 if (filter.filterType === "Checkbox") {
@@ -33,7 +32,6 @@ function ProductsFilter({ title, filterData, filterOptions, onFilter, onSearch }
                         onFilter={onFilter}
                     />
                     )
-
                 }
             })
         }

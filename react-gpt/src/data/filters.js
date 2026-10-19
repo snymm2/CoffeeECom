@@ -45,7 +45,8 @@ const filters = {
             filterType: "Checkbox",
         },
         {
-            filterName: "Brands",
+            filterName: "brand",
+            filterLabel: "Brands",
             filterType: "Checkbox",
         },
         {
