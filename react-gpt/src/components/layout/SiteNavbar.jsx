@@ -4,7 +4,7 @@ import { Container, Row, Col, Navbar, Nav, Button, Offcanvas } from 'react-boots
 
 import { Person, Cart3, List } from "react-bootstrap-icons";
 
-import { Link, NavLink } from "react-dom"
+import { Link, NavLink } from "react-router"
 
 import "./SiteNavbar.css";
 
@@ -106,7 +106,7 @@ function SiteNavbar( {context = "home", cartCount = 0}) {
 
                         <Navbar.Brand as={Link} to="/" className="site-logo mx-auto">
                             <img
-                                src="Logo.png"
+                                src="/Logo.png"
                                 alt="Code & Coffee Home">
                             </img>
                         </Navbar.Brand>
