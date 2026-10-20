@@ -1,12 +1,8 @@
-import { useState } from "react";
-
-import { Container, Image, Row, Card, Button } from "react-bootstrap";
-
-import { Link } from "react-router";
-
 import SiteNavbar from "../components/layout/SiteNavbar";
 import HeroSection from "../components/home/HeroSection";
 import FeaturedSection from "../components/home/FeaturedSection";
+import FindYourBrewSection from "../components/home/FindYourBrewSection";
+import MeetFarmersSection from "../components/home/MeetFarmersSection";
 
 function HomePage() {
 
@@ -18,6 +14,8 @@ function HomePage() {
             <main>
                 <HeroSection />
                 <FeaturedSection />
+                <MeetFarmersSection />
+                <FindYourBrewSection />
             </main>
         </>
     )

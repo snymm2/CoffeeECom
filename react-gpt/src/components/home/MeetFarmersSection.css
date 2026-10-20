@@ -1,0 +1,189 @@
+.meet-section {
+    padding: 5rem 0;
+    background-color: #F8F5EF;
+    color: #3B2A22;
+}
+
+.meet-section-row {
+    --bs-gutter-y: 2rem;
+}
+
+.meet-section-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    background-color: #E8DFD2;
+}
+
+.meet-section-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.meet-section-image-wrapper:hover .meet-section-image {
+    transform: scale(1.025);
+}
+
+.meet-section-image-caption {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    width: fit-content;
+    max-width: calc(100% - 2rem);
+    padding: 0.65rem 0.9rem;
+    border-radius: 0.4rem;
+    background-color: rgba(59, 42, 34, 0.88);
+    color: #FFFFFF;
+    font-size: 0.8rem;
+    letter-spacing: 0.025em;
+}
+
+.meet-section-content {
+    max-width: 35rem;
+    margin-inline: auto;
+}
+
+.meet-section-eyebrow {
+    margin-bottom: 1rem;
+    color: #956747;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    line-height: 1.5;
+}
+
+.meet-section-heading {
+    margin-bottom: 1.25rem;
+    color: #3B2A22;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+}
+
+.meet-section-intro {
+    max-width: 32rem;
+    margin-bottom: 1.75rem;
+    color: #6F6259;
+    font-size: 1rem;
+    line-height: 1.85;
+}
+
+.meet-section-quote {
+    position: relative;
+    margin: 0 0 1.75rem;
+    padding: 1.25rem 0 0 1.25rem;
+    border-left: 2px solid #B96F45;
+}
+
+.meet-section-quote-mark {
+    display: block;
+    margin-bottom: -0.5rem;
+    color: #B96F45;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 3.5rem;
+    line-height: 1;
+}
+
+.meet-section-quote p {
+    margin-bottom: 1.25rem;
+    color: #4D3A30;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+    font-style: italic;
+    line-height: 1.7;
+}
+
+.meet-section-attribution {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    color: #3B2A22;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.meet-section-quote-line {
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 2px;
+    margin-top: 0.6rem;
+    background-color: #B96F45;
+}
+
+.meet-section-attribution small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #7C7067;
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
+.meet-section-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #3B2A22;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.meet-section-link svg {
+    transition: transform 0.2s ease;
+}
+
+.meet-section-link:hover {
+    color: #B96F45;
+}
+
+.meet-section-link:hover svg {
+    transform: translateX(4px);
+}
+
+.meet-section-link:focus-visible {
+    outline: 2px solid #B96F45;
+    outline-offset: 5px;
+    border-radius: 2px;
+}
+
+@media (max-width: 767.98px) {
+    .meet-section {
+        padding: 3.5rem 0;
+    }
+
+    .meet-section-image {
+        aspect-ratio: 5 / 4;
+    }
+
+    .meet-section-content {
+        max-width: none;
+    }
+
+    .meet-section-heading {
+        font-size: clamp(2.1rem, 8vw, 3rem);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .meet-section-image,
+    .meet-section-link,
+    .meet-section-link svg {
+        transition: none;
+    }
+
+    .meet-section-image-wrapper:hover .meet-section-image {
+        transform: none;
+    }
+
+    .meet-section-link:hover svg {
+        transform: none;
+    }
+}

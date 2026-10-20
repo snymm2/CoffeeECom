@@ -20,8 +20,7 @@ function ProductCard({ productInfo }) {
                     onError={(event) => {
                         event.currentTarget.onerror = null;
                         event.currentTarget.src="/storefront/Default_Product_Image.png";
-                    }}>
-                </Card.Img>
+                    }} />
                 {
                     (productInfo.discountPercent > 0) ? (
                         <Card.ImgOverlay

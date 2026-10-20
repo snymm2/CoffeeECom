@@ -1,8 +1,9 @@
 import { Container, Row, Col, Button } from "react-bootstrap";
-
 import { Link } from "react-router";
+import { ArrowRight} from "react-bootstrap-icons";
 
-import { ArrowRight, ArrowRightCircle, ArrowRightCircleFill } from "react-bootstrap-icons";
+import FeaturedCard from "./FeaturedCard";
+import "./FeaturedSection.css"
 
 const featuredProducts = [
     {
@@ -10,85 +11,79 @@ const featuredProducts = [
         name: "Himali Bloom",
         location: "Lamjung, Nepal",
         process: "Washed",
-        note1: "Floral",
-        note2: "Citrus",
-        note3: "Clean",
+        tastingNotes: ["Floral", "Citrus", "Clean"],
         roastLevel: "Light",
-        price: 1250
+        price: 1250,
+        imageUrl: "/featured/HimaliBloom-001.jpg"
     },
     {
         id: "002",
         name: "Gurung Special",
         location: "Kaski, Nepal",
         process: "Natural",
-        note1: "Berry",
-        note2: "Chocolate",
-        note3: "Smooth",
+        tastingNotes: ["Berry", "Chocolate", "Smooth"],
         roastLevel: "Medium",
-        price: 1150
+        price: 1150,
+        imageUrl: "/featured/GurungSpecial-001.jpg"
     },
     {
         id: "003",
         name: "Sindhuli Classic",
         location: "Sindhuli, Nepal",
         process: "Washed",
-        note1: "Caramel",
-        note2: "Nutty",
-        note3: "Balanced",
+        tastingNotes: ["Caramel", "Nutty", "Balanced"],
         roastLevel: "Medium",
-        price: 1100
+        price: 1100,
+        imageUrl: "/featured/SindhuliClassic-001.jpg"
     },
     {
         id: "004",
         name: "Annapurna Reserve",
         location: "Myagdi, Nepal",
         process: "Natural",
-        note1: "Stone Fruit",
-        note2: "Floral",
-        note3: "Complex",
+        tastingNotes: ["Stone Fruit", "Floral", "Complex"],
         roastLevel: "Light",
-        price: 1350
+        price: 1350,
+        imageUrl: "/featured/AnnapurnaReserve-001.jpg"
     }
 ];
-
 
 function FeaturedSection() {
     return (
         <section
             className="featured-coffee-section">
-            <Container
-                className="my-2">
+            <Container>
                 <Row
-                    className="justify-content-between align-items-center">
-                    <Col
-                        xs={10}
-                        md={6}
-                        lg={6}>
-                        
-                        <h4>Featured Coffees</h4>
-                        <h2>Coffee Worth Discovering</h2>
-                        <p>Carefully sourced, small-batch coffees from Nepalese highlands.</p>
+                    className="justify-content-between align-items-end mb-4">
+                    <Col xs={12} md={8}>
+                        <p className="featured-eyebrow">FEATURED COFFEES</p>
+                        <h2 className="featured-heading">Coffee Worth Discovering</h2>
+                        <p className="featured-description">
+                            Carefully sourced, small-batch coffees from Nepalese highlands.</p>
                     </Col>
-                    <Col
-                        xs={2}
-                        md={4}
-                        className="text-end">
+                    <Col xs={12} sm="auto" className="mt-2 mt-md-0">
                         <Button
                             as={Link}
-                            to="/shop"
-                            variant="outline-dark"
-                            className="border-0">
-                            Learn more &nbsp;
-                            <ArrowRightCircleFill />
+                            to="/shop/coffee"
+                            variant="link"
+                            className="featured-view-all p-0">
+                            View all coffees
+                            <ArrowRight className="ms-2" />
                         </Button>
                     </Col>
                 </Row>
-                <Row>
 
-                </Row>
+                <div className="featured-products">
+                    {featuredProducts.map((product) => (
+                        <div className="featured-product-item"
+                            key={product.id}>
+                            <FeaturedCard productInfo={product} />
+                        </div>
+                    ))}
+                </div>
             </Container>
         </section>
-    )
+    );
 }
 
 export default FeaturedSection;
