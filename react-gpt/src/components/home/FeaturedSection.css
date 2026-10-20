@@ -154,18 +154,14 @@
 }
 
 .featured-card-details {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    color: #5D6E51;
+    color: #956747;
     font-size: 0.85rem;
     font-weight: 600;
     text-decoration: none;
 }
 
 .featured-card-details:hover {
-    color: #3B2A22;
-    text-decoration: underline;
+    color: #B96F45;
 }
 
 @media (min-width: 576px) {
@@ -193,6 +189,16 @@
     .featured-products {
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 1.25rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .featured-card .card-body {
+        padding: 1rem;
+    }
+
+    .featured-card-title {
+        font-size: 1.15rem;
     }
 }
 
