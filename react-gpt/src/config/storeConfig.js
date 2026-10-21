@@ -1,0 +1,1 @@
+export const DEMO_SHIPPING_FEE = 150;

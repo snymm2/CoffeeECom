@@ -24,6 +24,10 @@ const navigationContexts = {
         { label: "Merch", to: "/shop/merch" },
     ],
 
+    cart: [],
+
+    checkout: [],
+
     farmers: [
         { label: "All Farmers", to: "/farmers" },
         { label: "Our Story", to: "/our-story" },
@@ -88,6 +92,7 @@ function SiteNavbar( {context = "home"}) {
                             </Row>
                         </Container>
                 </div>
+
                 <Navbar className="site-main-nav py-2">
                     <Container fluid="lg">
                         <Button
@@ -139,21 +144,26 @@ function SiteNavbar( {context = "home"}) {
                         </Button>
                     </Container>
                 </Navbar>
-                <div className="site-context-nav d-none d-lg-block">
-                    <Container fluid="lg">
-                        <Nav className="justify-content-center">
-                            {contextualLinks.map((item) => (
-                                <Nav.Link
-                                    key={item.to}
-                                    as={NavLink}
-                                    to={item.to}
-                                >
-                                    {item.label}
-                                </Nav.Link>
-                            ))}
-                        </Nav>
-                    </Container>
-                </div>
+
+                {
+                    contextualLinks.length > 0 && (
+                        <div className="site-context-nav d-none d-lg-block">
+                            <Container fluid="lg">
+                                <Nav className="justify-content-center">
+                                    {contextualLinks.map((item) => (
+                                        <Nav.Link
+                                            key={item.to}
+                                            as={NavLink}
+                                            to={item.to}
+                                        >
+                                            {item.label}
+                                        </Nav.Link>
+                                    ))}
+                                </Nav>
+                            </Container>
+                        </div>
+                    )
+                }
 
                 {/* Mobile navigation drawer */}
                 <Navbar.Offcanvas
