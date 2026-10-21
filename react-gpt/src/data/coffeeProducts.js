@@ -27,7 +27,7 @@ const createProducts = (prefix, category, items, getDetails) =>
             ratingAvg,
             ratingTotal,
             stock,
-            isFeatured: index % 4 === 0,
+            isFeatured: prefix === "featured" ? true : false,              
             isActive: true,
             ...getDetails(details)
         };
@@ -38,8 +38,8 @@ const createProducts = (prefix, category, items, getDetails) =>
 
 const coffeeProducts = createProducts("coffee", "coffee", [
     ["Nations Coffee", "Nations", "Coffee Beans", 1000, 0.10, 4.8, 324, 45, "Arabica", "Medium", "Whole Bean", "Nepal", 250],
-    ["Himalayan Sunrise", "Himalayan Brew", "Coffee Beans", 1200, 0.05, 4.7, 186, 32, "Arabica", "Light", "Whole Bean", "Nepal", 250],
-    ["Everest Espresso Blend", "Everest Roasters", "Coffee Beans", 950, 0.15, 4.6, 142, 28, "Blend", "Dark", "Whole Bean", "Nepal", 250],
+    ["Himalayan Sunrise", "Himalayan Brew", "Coffee Beans", 1200, 0.05, 4.7, 186, 0, "Arabica", "Light", "Whole Bean", "Nepal", 250],
+    ["Everest Espresso Blend", "Everest Roasters", "Coffee Beans", 950, 0.15, 4.6, 142, 3, "Blend", "Dark", "Whole Bean", "Nepal", 250],
     ["Colombian Supremo", "Origin Select", "Coffee Beans", 1450, 0.10, 4.9, 278, 21, "Arabica", "Medium", "Whole Bean", "Colombia", 250],
     ["Robusta Dark Roast", "Bold Bean", "Coffee Beans", 800, 0, 4.3, 97, 50, "Robusta", "Dark", "Whole Bean", "Vietnam", 250],
     ["Ethiopian Yirgacheffe", "Origin Select", "Coffee Beans", 1600, 0.08, 4.9, 213, 18, "Arabica", "Light", "Whole Bean", "Ethiopia", 250],
@@ -201,6 +201,16 @@ const apparelProducts = createProducts("apparel", "merch", [
     merchandiseType, sizes, color, material
 }));
 
+const featuredProducts = createProducts("featured", "coffee", [
+    ["Himali Bloom", "Nepal Coffee Company", "Coffee Beans", 1250, 0, 4.9, 125, 45, "Lamjung, Nepal", "Washed", ["Floral", "Citrus", "Clean"], "Light"],
+    ["Gurung Special", "Nepal Coffee Company", "Coffee Beans", 1150, 0, 4.85, 94, 75, "Kaski, Nepal", "Natural", ["Berry", "Chocolate", "Smooth"], "Medium"],
+    ["Sindhuli Classic", "Nepal Coffee Company", "Coffee Beans", 1100, 0, 4.91, 112, 24, "Sindhuli, Nepal", "Washed", ["Caramel", "Nutty", "Balanced"], "Medium"],
+    ["Annapurna Reserve", "Nepal Coffee Company", "Coffee Beans", 1350, 0, 4.89, 204, 112, "Myagdi, Nepal", "Natural", ["Stone Fruit", "Floral", "Complex"], "Light"],
+
+], ([location, process, tastingNotes, roastLevel]) => ({
+    location, process, tastingNotes, roastLevel
+}));
+
 // Combine all categories into one array for your store.
 const products = [
     ...coffeeProducts,
@@ -215,7 +225,8 @@ const products = [
     ...supplyProducts,
     ...syrupProducts,
     ...giftProducts,
-    ...apparelProducts
+    ...apparelProducts,
+    ...featuredProducts
 ];
 
 export default products;

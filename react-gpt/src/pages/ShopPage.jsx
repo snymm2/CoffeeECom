@@ -40,6 +40,8 @@ function ShopPage({ title, category, products}) {
 
     const [searchQuery, setSearchQuery] = useState('');
 
+    const [sortBy, setSortBy] = useState("featured");
+
     const [filterOptions, setFilterOptions] = useState(
         Object.fromEntries(
             actualFilters.map((filter) => {
@@ -125,9 +127,43 @@ function ShopPage({ title, category, products}) {
         return true;
     })
 
+    const sortedProducts = [...visibleProducts].sort((a, b) => {
+        const priceA = Math.round(
+            a.price * (1 - (a.discountPercent || 0))
+        );
+
+        const priceB = Math.round(
+            b.price * (1 - (b.discountPercent || 0))
+        );
+
+        switch (sortBy) {
+            case "name-asc":
+                return a.name.localeCompare(b.name);
+            
+            case "price-asc":
+                return priceA - priceB;
+            
+            case "price-desc":
+                return priceB - priceA;
+
+            case "rating-desc":
+                return (b.ratingAvg ?? -1) - (a.ratingAvg ?? -1);
+
+            case "popular":
+                return (b.ratingTotal ?? 0) - (a.ratingTotal ?? 0);
+            
+            case "discount-desc":
+                return (b.discountPercent ?? 0) - (a.discountPercent ?? 0);
+            
+            case "featured":
+            default:
+                return Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured));
+        }
+    });
+
     return (
         <>
-        <SiteNavbar context="shop" cartCount={0} />
+        <SiteNavbar context="shop" />
 
         <Container
             className="py-4"
@@ -147,7 +183,12 @@ function ShopPage({ title, category, products}) {
                 </aside>
                 <main
                     className="col-12 col-md-8 col-lg-9">
-                    <ProductDisplay key={category} title={title} productCards={visibleProducts}></ProductDisplay>
+                    <ProductDisplay 
+                        key={category} 
+                        title={title} 
+                        productCards={sortedProducts}
+                        sortBy={sortBy}
+                        onSortChange={setSortBy}></ProductDisplay>
                 </main>
             </Row>
         </Container>

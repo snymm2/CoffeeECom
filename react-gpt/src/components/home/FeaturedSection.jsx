@@ -5,50 +5,12 @@ import { ArrowRight} from "react-bootstrap-icons";
 import FeaturedCard from "./FeaturedCard";
 import "./FeaturedSection.css"
 
-const featuredProducts = [
-    {
-        id: "001",
-        name: "Himali Bloom",
-        location: "Lamjung, Nepal",
-        process: "Washed",
-        tastingNotes: ["Floral", "Citrus", "Clean"],
-        roastLevel: "Light",
-        price: 1250,
-        imageUrl: "/featured/HimaliBloom-001.jpg"
-    },
-    {
-        id: "002",
-        name: "Gurung Special",
-        location: "Kaski, Nepal",
-        process: "Natural",
-        tastingNotes: ["Berry", "Chocolate", "Smooth"],
-        roastLevel: "Medium",
-        price: 1150,
-        imageUrl: "/featured/GurungSpecial-001.jpg"
-    },
-    {
-        id: "003",
-        name: "Sindhuli Classic",
-        location: "Sindhuli, Nepal",
-        process: "Washed",
-        tastingNotes: ["Caramel", "Nutty", "Balanced"],
-        roastLevel: "Medium",
-        price: 1100,
-        imageUrl: "/featured/SindhuliClassic-001.jpg"
-    },
-    {
-        id: "004",
-        name: "Annapurna Reserve",
-        location: "Myagdi, Nepal",
-        process: "Natural",
-        tastingNotes: ["Stone Fruit", "Floral", "Complex"],
-        roastLevel: "Light",
-        price: 1350,
-        imageUrl: "/featured/AnnapurnaReserve-001.jpg"
-    }
-];
+import products from "../../data/coffeeProducts";
 
 function FeaturedSection() {
+
+    const featuredProducts = products.filter((product) => product.isFeatured);
+
     return (
         <section
             className="featured-coffee-section">

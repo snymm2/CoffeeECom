@@ -1,13 +1,8 @@
 import { useContext, useState } from "react";
-
 import { Container, Row, Col, Navbar, Nav, Button, Offcanvas, Badge } from 'react-bootstrap';
-
 import { Person, Cart3, List } from "react-bootstrap-icons";
-
 import { Link, NavLink } from "react-router"
-
 import { useCart } from "../../context/CartContext";
-
 import "./SiteNavbar.css";
 
 const navigationContexts = {
@@ -82,8 +77,9 @@ function SiteNavbar( {context = "home"}) {
                                             aria-label={`Shopping Cart, ${cartCount} items`}>
                                             <Cart3 aria-hidden="true" />
                                             <span className="d-none d-sm-inline">
-                                                Cart
+                                                Cart 
                                             </span>
+                                            {" "}
                                             <span className="site-cart-count">
                                                 {cartCount}
                                             </span>
@@ -108,7 +104,7 @@ function SiteNavbar( {context = "home"}) {
                                 <Nav.Link as={NavLink} to="/discover">
                                     Discover
                                 </Nav.Link>
-                                <Nav.Link as={NavLink} to="/discover">
+                                <Nav.Link as={NavLink} to="/shop">
                                     Shop
                                 </Nav.Link>
                         </Nav>

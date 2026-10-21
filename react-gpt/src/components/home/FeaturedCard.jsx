@@ -36,7 +36,7 @@ function FeaturedCard({productInfo}) {
 
                     <div className='featured-card-image-wrapper'>
                         <Card.Img
-                            src={imageUrl || fallbackImage}
+                            src={updatedImageUrl}
                             alt={name}
                             className='featured-card-image'
                             loading='lazy'

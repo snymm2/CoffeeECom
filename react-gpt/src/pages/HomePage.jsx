@@ -9,7 +9,7 @@ function HomePage() {
 
     return (
         <>
-            <SiteNavbar context="home" cartCount={0} />
+            <SiteNavbar context="home" />
 
             <main>
                 <HeroSection />

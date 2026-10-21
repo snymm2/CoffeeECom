@@ -6,6 +6,7 @@ import ShopPage from "./pages/ShopPage";
 import HomePage from "./pages/HomePage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import ProductDetailsPage from "./pages/ProductDetailsPage";
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { CartProvider } from "./context/CartContext";
@@ -22,6 +23,8 @@ function App() {
             <Route path="/shop/merch" element={<ShopPage title="Merchandise" key="merch" category="merch" products={products.filter(product => product.category === "merch")} />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+
+            <Route path="/products/:id" element={<ProductDetailsPage />} />
           </Routes>
 
           <SiteFooter />
