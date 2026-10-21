@@ -15,21 +15,21 @@ const brewMethods = [
     {
         id: "french-press",
         name: "French Press",
-        iconUrl: "/home/v60.png",
+        iconUrl: "/home/FrenchPress.png",
         description: "Rich texture & full-bodied",
         guideLabel: "French Press Brewing Guide"
     },
     {
         id: "moka-pot",
         name: "Moka Pot",
-        iconUrl: "/home/v60.png",
+        iconUrl: "/home/MokaPot.png",
         description: "Bold, Balanced yet Concentrated",
         guideLabel: "Moka Pot Brewing Guide"
     },
     {
         id: "roast-levels",
         name: "Roast Levels",
-        iconUrl: "/home/v60.png",
+        iconUrl: "/home/RoastLevels.png",
         description: "Discover different roasts",
         guideLabel: "Coffee Roast Levels Guide"
     }

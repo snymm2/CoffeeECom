@@ -1,7 +1,10 @@
-import { Card, Badge } from 'react-bootstrap'
+import { Card, Badge, Button } from 'react-bootstrap'
 import { Link } from 'react-router';
+import { useCart } from '../../context/CartContext';
 
 function FeaturedCard({productInfo}) {
+
+    const {addToCart} = useCart();
 
     const {
         id,
@@ -82,12 +85,12 @@ function FeaturedCard({productInfo}) {
                         Rs. {formattedPrice}
                     </p>
 
-                    <Link
-                        to={`/products/${id}`}
-                        className="featured-card-details" >
-                        Discover coffee
-                        <span aria-hidden="true"> →</span>
-                    </Link>
+                    <Button
+                        variant="dark"
+                        className="w-100"
+                        onClick={() => addToCart(productInfo)}>
+                        Add to Cart!
+                    </Button>
                 </div>
             </Card.Body>
         </Card>

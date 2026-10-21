@@ -1,6 +1,9 @@
 import {Card, Button, Image} from 'react-bootstrap'
+import { useCart } from '../context/CartContext';
 
 function ProductCard({ productInfo }) {
+
+    const {addToCart} = useCart();
 
     const updatedImageUrl = productInfo.imageUrl ? productInfo.imageUrl : "/storefront/Default_Product_Image.png";
     const discountAmount = productInfo.price * productInfo.discountPercent;
@@ -66,7 +69,8 @@ function ProductCard({ productInfo }) {
                     
                 </Card.Text>
                 <Button
-                    className='d-flex btn-outline text-dark mt-auto mx-auto'>
+                    className='d-flex btn-outline text-dark mt-auto mx-auto'
+                    onClick={() => addToCart(productInfo)}>
                     <Image
                         src="/storefront/Cart_Icon.png"
                         style={{ width: "24px", height: "24px" }}>

@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 
-import { Container, Row, Col, Navbar, Nav, Button, Offcanvas } from 'react-bootstrap';
+import { Container, Row, Col, Navbar, Nav, Button, Offcanvas, Badge } from 'react-bootstrap';
 
 import { Person, Cart3, List } from "react-bootstrap-icons";
 
 import { Link, NavLink } from "react-router"
+
+import { useCart } from "../../context/CartContext";
 
 import "./SiteNavbar.css";
 
@@ -35,12 +37,14 @@ const navigationContexts = {
     ],
 };
 
-function SiteNavbar( {context = "home", cartCount = 0}) {
+function SiteNavbar( {context = "home"}) {
     const [showMenu, setShowMenu] = useState(false);
 
     const contextualLinks = navigationContexts[context] ?? navigationContexts.home;
 
     const closeMenu = () => setShowMenu(false);
+
+    const {cartCount} = useCart();
 
     return (
         <header
@@ -170,16 +174,13 @@ function SiteNavbar( {context = "home", cartCount = 0}) {
                             <Nav.Link
                                 as={NavLink}
                                 to="/"
-                                onClick={closeMenu}
-                            >
+                                onClick={closeMenu}>
                                 Home
                             </Nav.Link>
-
                             <Nav.Link
                                 as={NavLink}
                                 to="/shop"
-                                onClick={closeMenu}
-                            >
+                                onClick={closeMenu}>
                                 Shop All
                             </Nav.Link>
 
@@ -188,8 +189,7 @@ function SiteNavbar( {context = "home", cartCount = 0}) {
                                     key={item.to}
                                     as={NavLink}
                                     to={item.to}
-                                    onClick={closeMenu}
-                                >
+                                    onClick={closeMenu}>
                                     {item.label}
                                 </Nav.Link>
                             ))}
@@ -199,17 +199,16 @@ function SiteNavbar( {context = "home", cartCount = 0}) {
                             <Nav.Link
                                 as={NavLink}
                                 to="/account"
-                                onClick={closeMenu}
-                            >
+                                onClick={closeMenu}>
                                 Account
                             </Nav.Link>
 
                             <Nav.Link
                                 as={NavLink}
                                 to="/cart"
-                                onClick={closeMenu}
-                            >
-                                Cart ({cartCount})
+                                onClick={closeMenu}>
+                                <span className="site-cart-count">{cartCount}</span>
+                                Cart
                             </Nav.Link>
                         </Nav>
                     </Offcanvas.Body>
