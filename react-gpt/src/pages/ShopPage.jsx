@@ -101,6 +101,8 @@ function ShopPage({ title, category, products}) {
                 }
             })
         }
+
+        setCurrentPage(1);
     }
 
     const visibleProducts = products.filter(product => {
@@ -161,6 +163,20 @@ function ShopPage({ title, category, products}) {
         }
     });
 
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const handlePageChange = (newVal) => {
+        setCurrentPage(newVal);
+    }
+
+    const productsPerPage = 12;
+
+    const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
+
+    const startIndex = (currentPage - 1) * productsPerPage;
+    console.log(startIndex)
+    const paginatedProducts = sortedProducts.slice(startIndex, startIndex + productsPerPage);
+
     return (
         <>
         <SiteNavbar context="shop" />
@@ -186,9 +202,13 @@ function ShopPage({ title, category, products}) {
                     <ProductDisplay 
                         key={category} 
                         title={title} 
-                        productCards={sortedProducts}
+                        productCards={paginatedProducts}
                         sortBy={sortBy}
-                        onSortChange={setSortBy}></ProductDisplay>
+                        onSortChange={setSortBy}
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={ handlePageChange }
+                        totalProducts={sortedProducts.length}></ProductDisplay>
                 </main>
             </Row>
         </Container>
