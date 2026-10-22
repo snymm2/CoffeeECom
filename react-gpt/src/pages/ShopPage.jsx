@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import { Container, Row } from "react-bootstrap";
 
@@ -7,6 +7,37 @@ import ProductDisplay from "../components/ProductDisplay";
 
 import filters from "../data/filters";
 import SiteNavbar from "../components/layout/SiteNavbar";
+
+import { fetchProducts } from '../services/productService';
+
+function buildApiFilters(filterDefinitions, filterOptions) {
+    const result = {};
+
+    for (const definition of filterDefinitions) {
+        const state = filterOptions[definition.filterName];
+
+        if (!state?.active) continue;
+
+        if (definition.filterType === 'Checkbox') {
+            if (state.targets?.length) {
+                result[definition.filterName] = state.targets;
+            }
+        }
+
+        if (definition.filterType === "Range") {
+            const range = state.current;
+
+            if (range && typeof range ==='object') {
+                result[definition.filterName] = {
+                    min: range.min,
+                    max: range.max
+                };
+            }
+        }
+    }
+
+    return result;
+}
     
 function ShopPage({ title, category, products}) {
 
@@ -38,10 +69,6 @@ function ShopPage({ title, category, products}) {
         }
     })
 
-    const [searchQuery, setSearchQuery] = useState('');
-
-    const [sortBy, setSortBy] = useState("featured");
-
     const [filterOptions, setFilterOptions] = useState(
         Object.fromEntries(
             actualFilters.map((filter) => {
@@ -66,8 +93,68 @@ function ShopPage({ title, category, products}) {
         )
     );
 
+    const [products, setProducts] = useState([]);
+    const [pagination, setPagination] = useState({
+        page: 1,
+        limit: 12,
+        totalItems: 0,
+        totalPages: 0  
+    });
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [sortBy, setSortBy] = useState("featured");
+
+    const apiFilters = useMemo(() => 
+        buildApiFilters(filters[category] ?? [], filterOptions), 
+        [category, filterOptions]
+    );
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadProducts() {
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                const result = await fetchProducts({
+                    category,
+                    search: searchQuery,
+                    filters: apiFilters,
+                    sort: sortBy,
+                    page: currentPage,
+                    limit: 12
+                });
+
+                if (cancelled) return;
+
+                setProducts(result.data);
+                setPagination(result.pagination);
+            } catch (err) {
+                if (cancelled) return;
+                setError(err.message);
+                setProducts([]);
+            } finally {
+                if (!cancelled) {
+                    setIsLoading(false);
+                }
+            }
+        }
+
+        loadProducts();
+
+        return () => {
+            cancelled = true;
+        }
+    }, [category, searchQuery, apiFilters, sortBy, currentPage]);
+
+
     const handleSearchQueryChange = (newValue) => {
         setSearchQuery(newValue);
+        setCurrentPage(1);
     }
 
     const handleFilterOptionsChange = (filterOption) => {
@@ -101,6 +188,13 @@ function ShopPage({ title, category, products}) {
                 }
             })
         }
+
+        setCurrentPage(1);
+    }
+
+    const handleSortChange = (value) => {
+        setSortBy(value);
+        setCurrentPage(1);
     }
 
     const visibleProducts = products.filter(product => {

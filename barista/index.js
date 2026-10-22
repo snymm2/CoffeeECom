@@ -2,7 +2,7 @@
 
 const express = require('express');
 const morgan = require('morgan');
-const path = require('path')
+const cors = require('cors');
 
 const DBAbstraction = require("./DBAbstraction");
 const { validateProduct } = require('./productValidation');
@@ -18,6 +18,12 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use(cors())
+
+const allowedCategories = new Set(['coffee', 'equipment', 'merch']);
+const allowedSorts = new Set(['featured', 'name-asc', 'price-asc', 'price-desc', 'rating-desc', 'popular', 'discount-disc']);
+const MAX_PAGE_SIZE = 100;
+
 function sendError(res, status, message, details) {
     const response = {error: message}
 
@@ -32,8 +38,51 @@ function sendError(res, status, message, details) {
 // Retrieves all Products
 app.get("/products", async (req, res, next) => {
     try {
-        const allProducts = await db.getAllProducts();
-        res.status(200).json(allProducts);
+        const { category, search = '', sort = 'featured', filters: filtersParam = '{}' } = req.query;
+
+        const page = Number(req.query.page ?? 1);
+        const limit = Number(req.query.limit ?? 12);
+
+        if (!Number.isInteger(page) || page < 1 ||
+            !Number.isInteger(limit) || limit < 12 || limit > MAX_PAGE_SIZE) {
+            return sendError(res, 400, `page must be a positive integer, limit must be between 1 and ${MAX_PAGE_SIZE}`);
+        }
+
+        if (category !== undefined && !allowedCategories.has(category)) {
+            return sendError(res, 400, `Unsupported Product Category.`);
+        }
+
+        if (!allowedSorts.has(sort)) {
+            return sendError(res, 400, `Unsupported Sort Option.`);
+        }
+
+        if (typeof search !== 'string' || search.length > 100) {
+            return sendError(res, 400, `Search string must be at most 100 characters.`)
+        }
+
+        let filters;
+
+        try {
+            filters = JSON.parse(filtersParam);
+        } catch {
+            return sendError(res, 400, `"filters" must contain valid JSON.`);
+        }
+
+        if (filters === null || typeof filters !== 'object' || Array.isArray(filters)) {
+            return sendError(res, 400, `"filters" must be a JSON object.`);
+        }
+        console.log("Reached Here.")
+        const result = await db.getProducts({
+            category,
+            search: search.trim(),
+            filters,
+            sort,
+            page,
+            limit
+        });
+
+        return res.status(200).json(result);
+
     } catch (err) {
         next(err);
     }
@@ -47,8 +96,7 @@ app.get("/products/:id", async (req, res, next) => {
             return sendError(res, 400, "Invalid Product ID.");
         }
 
-        const product = db.getProductById(id);
-
+        const product = await db.getProductById(id);
         if (!product) {
             return sendError(res, 404, "Product Not Found.");
         }
@@ -96,7 +144,7 @@ app.patch("/products/:id", async (req, res, next) => {
             return sendError(res, 404, "Product not Found.");
         }
 
-        return res.status(200).json(createdProduct);
+        return res.status(200).json(updatedProduct);
     } catch (err) {
         next(err);
     }

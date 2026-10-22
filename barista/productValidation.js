@@ -72,7 +72,7 @@ const allowedCategories = new Set([
     'merch'
 ]);
 
-function validateProduct(product, { partial = false} = {}) {
+function validateProduct(product, { partial = false } = {}) {
     const errors = [];
 
     if (
