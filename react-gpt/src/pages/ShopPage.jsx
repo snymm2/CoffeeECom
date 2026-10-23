@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import { Container, Row } from "react-bootstrap";
 
@@ -7,6 +7,63 @@ import ProductDisplay from "../components/ProductDisplay";
 
 import filters from "../data/filters";
 import SiteNavbar from "../components/layout/SiteNavbar";
+
+import { fetchProducts } from '../services/productService';
+
+function createInitialFilterOptions(actualFilters) {
+
+    return Object.fromEntries(
+        actualFilters.map((filter) => {
+            if (filter.filterType === "Checkbox") {
+                const filterState = {
+                    active: false,
+                    type: "Checkbox",
+                    targets: []
+                }
+                return [filter.filterName, filterState];
+            }
+
+            if (filter.filterType === "Range") {
+                const filterState = {
+                    active: true,
+                    type: filter.filterType,
+                    min: filter.filterMin,
+                    max: filter.filterMax,
+                    current: filter.filterMax
+                }
+                return [filter.filterName, filterState];
+            }
+
+            return null;
+        }).filter(Boolean)
+    )
+
+}
+
+function buildApiFilters(filterOptions) {
+    const result = {};
+
+    for (const [filterName, filterValues] of Object.entries(filterOptions)){
+        if (!filterValues?.active) continue;
+
+        if (filterValues.type === "Checkbox") {
+            if (filterValues.targets?.length) {
+                result[filterName] = filterValues.targets;
+            }
+        }
+
+        if (filterValues.type === "Range") {
+            if (filterValues.current) {
+                result[filterName] = {
+                    min: filterValues.min,
+                    max: filterValues.current
+                }
+            }
+        }
+    }
+
+    return result;
+}
     
 function ShopPage({ title, category, products}) {
 
@@ -38,36 +95,71 @@ function ShopPage({ title, category, products}) {
         }
     })
 
-    const [searchQuery, setSearchQuery] = useState('');
+    const [filterOptions, setFilterOptions] = useState(() => createInitialFilterOptions(actualFilters));
 
+    useEffect(() => {
+        setFilterOptions(createInitialFilterOptions(actualFilters));
+        setCurrentPage(1);
+    }, [category]);
+
+    const [backendProducts, setBackendProducts] = useState([]);
+    const [pagination, setPagination] = useState({
+        page: 1,
+        limit: 12,
+        totalItems: 0,
+        totalPages: 0  
+    });
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState("featured");
 
-    const [filterOptions, setFilterOptions] = useState(
-        Object.fromEntries(
-            actualFilters.map((filter) => {
-                if (filter.filterType === "Checkbox") {
-                    const filterState = {
-                        active: false,
-                        type: "Checkbox",
-                        targets: []
-                    }
-                    return [filter.filterName, filterState];
-                } else if (filter.filterType === "Range") {
-                    const filterState = {
-                        active: true,
-                        type: filter.filterType,
-                        min: filter.filterMin,
-                        max: filter.filterMax,
-                        current: filter.filterMax
-                    }
-                    return [filter.filterName, filterState];
+    const apiFilters = useMemo(() => buildApiFilters(filterOptions), [filterOptions]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadProducts() {
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                const result = await fetchProducts({
+                    category,
+                    search: searchQuery,
+                    filters: apiFilters,
+                    sort: sortBy,
+                    page: currentPage,
+                    limit: 12
+                });
+
+                if (cancelled) return;
+                setBackendProducts(result.data);
+                setPagination(result.pagination);
+            } catch (err) {
+                if (cancelled) return;
+                setError(err.message);
+                setBackendProducts([]);
+            } finally {
+                if (!cancelled) {
+                    setIsLoading(false);
                 }
-            })
-        )
-    );
+            }
+        }
+
+        loadProducts();
+
+        return () => {
+            cancelled = true;
+        }
+    }, [category, searchQuery, apiFilters, sortBy, currentPage]);
+
 
     const handleSearchQueryChange = (newValue) => {
         setSearchQuery(newValue);
+        setCurrentPage(1);
     }
 
     const handleFilterOptionsChange = (filterOption) => {
@@ -96,86 +188,20 @@ function ShopPage({ title, category, products}) {
                     ...currentValue,
                     [filterOption.filterName]: {
                         ...previous,
-                        current: filterOption.value
+                        current: filterOption.value,
+                        active: true
                     }
                 }
-            })
+            });
         }
 
         setCurrentPage(1);
     }
 
-    const visibleProducts = products.filter(product => {
-        if (!product.name.toLowerCase().includes(searchQuery.toLowerCase()) 
-            && !product.brand.toLowerCase().includes(searchQuery.toLowerCase())) {
-                return false;
-        }
-
-        for (const [key, value] of Object.entries(filterOptions)) {
-            if (value["active"]) {
-                if (value["type"] === "Checkbox") {
-                    if (!value["targets"].includes(product[key])) {
-                        return false;
-                    }
-                }
-                if (value["type"] === "Range") {
-                    if (product[key] > value["current"]) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        return true;
-    })
-
-    const sortedProducts = [...visibleProducts].sort((a, b) => {
-        const priceA = Math.round(
-            a.price * (1 - (a.discountPercent || 0))
-        );
-
-        const priceB = Math.round(
-            b.price * (1 - (b.discountPercent || 0))
-        );
-
-        switch (sortBy) {
-            case "name-asc":
-                return a.name.localeCompare(b.name);
-            
-            case "price-asc":
-                return priceA - priceB;
-            
-            case "price-desc":
-                return priceB - priceA;
-
-            case "rating-desc":
-                return (b.ratingAvg ?? -1) - (a.ratingAvg ?? -1);
-
-            case "popular":
-                return (b.ratingTotal ?? 0) - (a.ratingTotal ?? 0);
-            
-            case "discount-desc":
-                return (b.discountPercent ?? 0) - (a.discountPercent ?? 0);
-            
-            case "featured":
-            default:
-                return Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured));
-        }
-    });
-
-    const [currentPage, setCurrentPage] = useState(1);
-
-    const handlePageChange = (newVal) => {
-        setCurrentPage(newVal);
+    const handleSortChange = (newSort) => {
+        setSortBy(newSort);
+        setCurrentPage(1);
     }
-
-    const productsPerPage = 12;
-
-    const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
-
-    const startIndex = (currentPage - 1) * productsPerPage;
-    console.log(startIndex)
-    const paginatedProducts = sortedProducts.slice(startIndex, startIndex + productsPerPage);
 
     return (
         <>
@@ -199,16 +225,35 @@ function ShopPage({ title, category, products}) {
                 </aside>
                 <main
                     className="col-12 col-md-8 col-lg-9">
-                    <ProductDisplay 
-                        key={category} 
-                        title={title} 
-                        productCards={paginatedProducts}
-                        sortBy={sortBy}
-                        onSortChange={setSortBy}
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={ handlePageChange }
-                        totalProducts={sortedProducts.length}></ProductDisplay>
+                    
+                    {
+                        error && (
+                            <div className="alert alert-danger" role="alert">
+                                {error}
+                            </div>
+                        )
+                    }
+
+                    {
+                        isLoading ? (
+                            <div className="text-center py-5">
+                                Loading products...
+                            </div>
+                        ) : (
+                            <ProductDisplay 
+                                key={category} 
+                                title={title} 
+                                productCards={backendProducts}
+                                sortBy={sortBy}
+                                onSortChange={ handleSortChange } 
+                                currentPage={pagination.page}
+                                totalPages={pagination.totalPages}
+                                totalItems={pagination.totalItems}
+                                pageSize={pagination.limit}
+                                onPageChange={setCurrentPage}/>
+                        )
+                    }
+
                 </main>
             </Row>
         </Container>
