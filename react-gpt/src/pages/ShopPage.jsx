@@ -10,6 +10,36 @@ import SiteNavbar from "../components/layout/SiteNavbar";
 
 import { fetchProducts } from '../services/productService';
 
+function createInitialFilterOptions(actualFilters) {
+
+    return Object.fromEntries(
+        actualFilters.map((filter) => {
+            if (filter.filterType === "Checkbox") {
+                const filterState = {
+                    active: false,
+                    type: "Checkbox",
+                    targets: []
+                }
+                return [filter.filterName, filterState];
+            }
+
+            if (filter.filterType === "Range") {
+                const filterState = {
+                    active: true,
+                    type: filter.filterType,
+                    min: filter.filterMin,
+                    max: filter.filterMax,
+                    current: filter.filterMax
+                }
+                return [filter.filterName, filterState];
+            }
+
+            return null;
+        }).filter(Boolean)
+    )
+
+}
+
 function buildApiFilters(filterOptions) {
     const result = {};
 
@@ -31,29 +61,6 @@ function buildApiFilters(filterOptions) {
             }
         }
     }
-
-    // for (const definition of filterDefinitions) {
-    //     const state = filterOptions[definition.filterName];
-
-    //     if (!state?.active) continue;
-
-    //     if (definition.filterType === 'Checkbox') {
-    //         if (state.targets?.length) {
-    //             result[definition.filterName] = state.targets;
-    //         }
-    //     }
-
-    //     if (definition.filterType === "Range") {
-    //         const range = state.current;
-
-    //         if (range && typeof range === "number") {
-    //             result[definition.filterName] = {
-    //                 min: state.min,
-    //                 max: range
-    //             };
-    //         }
-    //     }
-    // }
 
     return result;
 }
@@ -88,29 +95,12 @@ function ShopPage({ title, category, products}) {
         }
     })
 
-    const [filterOptions, setFilterOptions] = useState(
-        Object.fromEntries(
-            actualFilters.map((filter) => {
-                if (filter.filterType === "Checkbox") {
-                    const filterState = {
-                        active: false,
-                        type: "Checkbox",
-                        targets: []
-                    }
-                    return [filter.filterName, filterState];
-                } else if (filter.filterType === "Range") {
-                    const filterState = {
-                        active: true,
-                        type: filter.filterType,
-                        min: filter.filterMin,
-                        max: filter.filterMax,
-                        current: filter.filterMax
-                    }
-                    return [filter.filterName, filterState];
-                }
-            })
-        )
-    );
+    const [filterOptions, setFilterOptions] = useState(() => createInitialFilterOptions(actualFilters));
+
+    useEffect(() => {
+        setFilterOptions(createInitialFilterOptions(actualFilters));
+        setCurrentPage(1);
+    }, [category]);
 
     const [backendProducts, setBackendProducts] = useState([]);
     const [pagination, setPagination] = useState({
@@ -126,11 +116,7 @@ function ShopPage({ title, category, products}) {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState("featured");
 
-    const apiFilters = useMemo(() => buildApiFilters(filterOptions),
-        [category, filterOptions]);
-
-    console.log("Filter Options: ", filterOptions);
-    console.log("API Filters", apiFilters);
+    const apiFilters = useMemo(() => buildApiFilters(filterOptions), [filterOptions]);
 
     useEffect(() => {
         let cancelled = false;
@@ -150,7 +136,6 @@ function ShopPage({ title, category, products}) {
                 });
 
                 if (cancelled) return;
-
                 setBackendProducts(result.data);
                 setPagination(result.pagination);
             } catch (err) {
@@ -203,77 +188,20 @@ function ShopPage({ title, category, products}) {
                     ...currentValue,
                     [filterOption.filterName]: {
                         ...previous,
-                        current: filterOption.value
+                        current: filterOption.value,
+                        active: true
                     }
                 }
-            })
+            });
         }
 
         setCurrentPage(1);
     }
 
-    const handleSortChange = (value) => {
-        setSortBy(value);
+    const handleSortChange = (newSort) => {
+        setSortBy(newSort);
         setCurrentPage(1);
     }
-
-    const visibleProducts = products.filter(product => {
-        if (!product.name.toLowerCase().includes(searchQuery.toLowerCase()) 
-            && !product.brand.toLowerCase().includes(searchQuery.toLowerCase())) {
-                return false;
-        }
-
-        for (const [key, value] of Object.entries(filterOptions)) {
-            if (value["active"]) {
-                if (value["type"] === "Checkbox") {
-                    if (!value["targets"].includes(product[key])) {
-                        return false;
-                    }
-                }
-                if (value["type"] === "Range") {
-                    if (product[key] > value["current"]) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        return true;
-    })
-
-    const sortedProducts = [...visibleProducts].sort((a, b) => {
-        const priceA = Math.round(
-            a.price * (1 - (a.discountPercent || 0))
-        );
-
-        const priceB = Math.round(
-            b.price * (1 - (b.discountPercent || 0))
-        );
-
-        switch (sortBy) {
-            case "name-asc":
-                return a.name.localeCompare(b.name);
-            
-            case "price-asc":
-                return priceA - priceB;
-            
-            case "price-desc":
-                return priceB - priceA;
-
-            case "rating-desc":
-                return (b.ratingAvg ?? -1) - (a.ratingAvg ?? -1);
-
-            case "popular":
-                return (b.ratingTotal ?? 0) - (a.ratingTotal ?? 0);
-            
-            case "discount-desc":
-                return (b.discountPercent ?? 0) - (a.discountPercent ?? 0);
-            
-            case "featured":
-            default:
-                return Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured));
-        }
-    });
 
     return (
         <>
@@ -315,9 +243,9 @@ function ShopPage({ title, category, products}) {
                             <ProductDisplay 
                                 key={category} 
                                 title={title} 
-                                productCards={sortedProducts}
+                                productCards={backendProducts}
                                 sortBy={sortBy}
-                                onSortChange={setSortBy} 
+                                onSortChange={ handleSortChange } 
                                 currentPage={pagination.page}
                                 totalPages={pagination.totalPages}
                                 totalItems={pagination.totalItems}

@@ -1,20 +1,19 @@
 import ProductCard from "./ProductCard";
-import {Row, Col, Form} from "react-bootstrap"
+import { Row, Col, Form, Pagination } from "react-bootstrap"
 
 import "./ProductDisplay.css"
 
 function ProductDisplay({
     title, productCards, sortBy, onSortChange,
-    currentPage, totalPages, totalItems, pageSize, onPageChange
-}) {
+    currentPage, totalPages, totalItems, pageSize, onPageChange }) {
+
     return (
         <section className="product-display">
             <div className="product-display-toolbar">
                 <div>
                     <h1 className="product-display-title">{title}</h1>
                     <p className="product-display-count">
-                        {productCards.length}{" "}
-                        {productCards.length === 1 ? "product" : "products"} found
+                        {`Showing ${(currentPage - 1) * pageSize + 1}-${currentPage * pageSize} products out of ${totalItems}.`}
                     </p>
                 </div>
 
@@ -27,7 +26,7 @@ function ProductDisplay({
                         id="product-sort"
                         value={sortBy}
                         onChange={(event) => onSortChange(event.target.value)}>
-                        
+
                         <option value="featured">Featured</option>
                         <option value="name-asc">Name: A to Z</option>
                         <option value="price-asc">Price: Low to High</option>
@@ -55,6 +54,31 @@ function ProductDisplay({
                         </Col>
                     ))}
                 </Row>
+            )}
+
+            {totalPages > 1 && (
+                <Pagination className="justify-content-center mt-4 flex-wrap">
+                    <Pagination.Prev
+                        disabled={currentPage === 1}
+                        onClick={() => onPageChange(currentPage - 1)} />
+
+                    {Array.from({ length: totalPages }, (_, index) => index + 1)
+                        .map((page) => (
+                            <Pagination.Item
+                                key={page}
+                                active={page === currentPage}
+                                onClick={() => onPageChange(page)}>
+                                {page}
+                            </Pagination.Item>
+                        ))}
+
+
+                    <Pagination.Next
+                        disabled={currentPage === totalPages}
+                        onClick={() => onPageChange(currentPage + 1)}
+                    />
+
+                </Pagination>
             )}
         </section>
     );

@@ -26,7 +26,6 @@ export async function fetchProducts({
     }
 
     const result = await response.json();
-
     return {
         ...result,
         data: result.data.map(product => ({

@@ -131,7 +131,7 @@ class DBAbstraction {
                 }
 
                 if (value.max !== undefined && Number.isFinite(value.max)) {
-                    range.$lte = value.min;
+                    range.$lte = value.max;
                 }
 
                 if (Object.keys(range).length > 0) {

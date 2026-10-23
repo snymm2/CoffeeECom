@@ -39,7 +39,6 @@ function sendError(res, status, message, details) {
 app.get("/products", async (req, res, next) => {
     try {
         const { category, search = '', sort = 'featured', filters: filtersParam = '{}' } = req.query;
-
         const page = Number(req.query.page ?? 1);
         const limit = Number(req.query.limit ?? 12);
 
@@ -71,7 +70,7 @@ app.get("/products", async (req, res, next) => {
         if (filters === null || typeof filters !== 'object' || Array.isArray(filters)) {
             return sendError(res, 400, `"filters" must be a JSON object.`);
         }
-        console.log("Reached Here.")
+
         const result = await db.getProducts({
             category,
             search: search.trim(),
