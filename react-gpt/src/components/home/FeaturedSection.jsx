@@ -1,15 +1,57 @@
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { useState, useEffect } from "react";
+
+import { Container, Row, Col, Button, Alert } from "react-bootstrap";
 import { Link } from "react-router";
 import { ArrowRight} from "react-bootstrap-icons";
 
 import FeaturedCard from "./FeaturedCard";
 import "./FeaturedSection.css"
 
-import products from "../../data/coffeeProducts";
+import { fetchProducts } from "../../services/productService";
 
 function FeaturedSection() {
 
-    const featuredProducts = products.filter((product) => product.isFeatured);
+    const [featuredProducts, setFeaturedProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadFeaturedProducts() {
+            setIsLoading(true);
+            setFeaturedProducts(null);
+            setError(null);
+
+            try {
+                const result = await fetchProducts({
+                    category: "coffee",
+                    featured: true,
+                    sort: "featured",
+                    page: 1,
+                    limit: 4
+                });
+
+                if (!cancelled) {
+                    setFeaturedProducts(result.data)
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    setError(err.message);
+                }
+            } finally {
+                if (!cancelled) {
+                    setIsLoading(false);
+                }
+            }
+        }
+
+        loadFeaturedProducts();
+
+        return () => {
+            cancelled = true;
+        }
+    }, []);
 
     return (
         <section
@@ -35,14 +77,30 @@ function FeaturedSection() {
                     </Col>
                 </Row>
 
-                <div className="featured-products">
-                    {featuredProducts.map((product) => (
-                        <div className="featured-product-item"
-                            key={product.id}>
-                            <FeaturedCard productInfo={product} />
-                        </div>
-                    ))}
-                </div>
+                {error && (
+                    <Alert variant="danger">
+                        Unable to load featured coffees: {error}
+                    </Alert>
+                )}
+
+                {isLoading ? (
+                    <div className="text-center py-5">
+                        Loading featured coffees...
+                    </div>
+                ) : !error && featuredProducts.length === 0 ? (
+                    <p className="text-center py-4">
+                        No featured coffees are available right now.
+                    </p>
+                ) : (
+                    <div className="featured-products">
+                        {featuredProducts.map((product) => (
+                            <div className="featured-product-item"
+                                key={product.id}>
+                                <FeaturedCard productInfo={product} />
+                            </div>
+                        ))}
+                    </div>
+                )}
             </Container>
         </section>
     );

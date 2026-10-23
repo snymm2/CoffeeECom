@@ -34,7 +34,25 @@ function sendError(res, status, message, details) {
     return res.status(status).json(response);
 }
 
-// GET /products
+// Retrieves FilterOptions for the ShopPage
+app.get("/products/filter-options", async(req, res, next) => {
+    try {
+        const category = req.query.category;
+
+        if (category !== undefined) {
+            if ( typeof category !== "string" || !allowedCategories.has(category) ) {
+                return sendError(res, 400, "Invalid Product Category.");
+            }
+        }
+
+        const filterOptions = await db.getProductFilterOptions(category);
+
+        return res.status(200).json(filterOptions);
+    } catch (error) {
+        next(error);
+    }
+}); 
+
 // Retrieves all Products
 app.get("/products", async (req, res, next) => {
     try {
@@ -43,7 +61,7 @@ app.get("/products", async (req, res, next) => {
         const limit = Number(req.query.limit ?? 12);
 
         if (!Number.isInteger(page) || page < 1 ||
-            !Number.isInteger(limit) || limit < 12 || limit > MAX_PAGE_SIZE) {
+            !Number.isInteger(limit) || limit < 1 || limit > MAX_PAGE_SIZE) {
             return sendError(res, 400, `page must be a positive integer, limit must be between 1 and ${MAX_PAGE_SIZE}`);
         }
 
@@ -71,13 +89,25 @@ app.get("/products", async (req, res, next) => {
             return sendError(res, 400, `"filters" must be a JSON object.`);
         }
 
+        const featuredParam = req.query.featured;
+        let featured;
+
+        if (featuredParam !== undefined) {
+            if (featuredParam !== "true" && featuredParam !== "false") {
+                return sendError(res, 400, "featured must be either true or false.")
+            }
+            featured = featuredParam === "true";
+        }
+
+
         const result = await db.getProducts({
             category,
             search: search.trim(),
             filters,
             sort,
             page,
-            limit
+            limit,
+            featured
         });
 
         return res.status(200).json(result);
@@ -87,6 +117,7 @@ app.get("/products", async (req, res, next) => {
     }
 })
 
+// Retrieves Product Info from Product ID
 app.get("/products/:id", async (req, res, next) => {
     try {
         const {id} = req.params;

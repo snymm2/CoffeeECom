@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from 'react-router';
 import { Alert, Badge, Button, Col, Container, Form, Row } from "react-bootstrap";
 
-import products from "../data/coffeeProducts";
+import { fetchProductById } from "../services/productService";
 import { useCart } from "../context/CartContext";
 import "./ProductDetailsPage.css";
 import SiteNavbar from "../components/layout/SiteNavbar";
 
 
 const HIDDEN_FIELDS = new Set([
+    "_id",
     "id",
     "sku",
     "name",
@@ -51,17 +52,72 @@ export default function ProductDetailsPage() {
     const [quantity, setQuantity] = useState(1);
     const [added, setAdded] = useState(false);
 
-    const product = products.find((item) => item.id === id && item.isActive);
+    const [productData, setProductData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    if (!product) {
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadProductData() {
+            setIsLoading(true);
+            setProductData(null);
+            setError(null);
+
+            try {
+                const result = await fetchProductById(id);
+
+                if (!cancelled) {
+                    if (result.isActive) {
+                        setProductData(result);
+                    } else {
+                        setProductData(null);
+                    }
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    setError(err.message);
+                }
+            } finally {
+                if (!cancelled) {
+                    setIsLoading(false);
+                }
+            }
+        }
+
+        loadProductData();
+
+        return () => {
+            cancelled = true;
+        }
+    }, [id]);
+
+    if (isLoading) {
+        return (
+            <>
+                <SiteNavbar context="home" />
+                <Container className="product-details-page py-5">
+                    <div className="text-center py-5">
+                        Loading Product Data...
+                    </div>
+                </Container>
+            </>
+        );
+    }
+
+    if (error || !productData) {
         return (
             <>
                 <SiteNavbar context="home" />
 
                 <Container className="product-details-page py-5">
-                    <Alert variant="warning">
-                        <Alert.Heading>Product not found</Alert.Heading>
-                        This product may no longer be available.
+                    <Alert variant={error ? "danger" : "warning"}>
+                        <Alert.Heading>
+                            {error ? "Unable to Load Product Data" : "Product not found" }
+                        </Alert.Heading>
+
+                        { error || "This product may no longer be available." }
+
                         <div className="mt-3">
                             <Button as={Link} to="/shop" variant="dark">
                                 Browse Products
@@ -73,10 +129,10 @@ export default function ProductDetailsPage() {
         )
     }
 
-    const discountPercent = product.discountPercent || 0;
-    const currentPrice = Math.round(product.price * (1 - discountPercent));
+    const discountPercent = productData.discountPercent || 0;
+    const currentPrice = Math.round(productData.price * (1 - discountPercent));
 
-    const details = Object.entries(product).filter(
+    const details = Object.entries(productData).filter(
         ([key, value]) =>
             !HIDDEN_FIELDS.has(key) &&
             value !== undefined &&
@@ -84,13 +140,13 @@ export default function ProductDetailsPage() {
             value !== ""
     );
 
-    const inStock = Number.isFinite(product.stock) && product.stock > 0;
+    const inStock = Number.isFinite(productData.stock) && productData.stock > 0;
 
     function handleAddToCart() {
         if (!inStock) return;
 
         // Store the displayed selling price in the demo cart.
-        addToCart({ ...product, price: currentPrice }, quantity);
+        addToCart({ ...productData, price: currentPrice }, quantity);
         setAdded(true);
     }
 
@@ -104,15 +160,15 @@ export default function ProductDetailsPage() {
                 {" / "}
                 <Link to="/shop">Shop</Link>
                 {" / "}
-                <span>{product.name}</span>
+                <span>{productData.name}</span>
             </nav>
 
             <Row className="g-4 g-lg-5">
                 <Col lg={6}>
                     <div className="product-details-image">
                         <img
-                            src={product.imageUrl}
-                            alt={product.name}
+                            src={productData.imageUrl}
+                            alt={productData.name}
                             onError={(event) => {
                                 event.currentTarget.onerror = null;
                                 event.currentTarget.src =
@@ -131,20 +187,20 @@ export default function ProductDetailsPage() {
                 <Col lg={6}>
                     <div className="product-details-info">
                         <p className="product-details-category">
-                            {product.category} · {product.type}
+                            {productData.category} · {productData.type}
                         </p>
 
                         <p className="product-details-brand">
-                            {product.brand}
+                            {productData.brand}
                         </p>
 
-                        <h1>{product.name}</h1>
+                        <h1>{productData.name}</h1>
 
-                        {Number.isFinite(product.ratingAvg) && (
+                        {Number.isFinite(productData.ratingAvg) && (
                             <p className="product-details-rating">
-                                ★ {product.ratingAvg.toFixed(1)}
+                                ★ {productData.ratingAvg.toFixed(1)}
                                 <span>
-                                    {" "}({product.ratingTotal} ratings)
+                                    {" "}({productData.ratingTotal} ratings)
                                 </span>
                             </p>
                         )}
@@ -154,22 +210,22 @@ export default function ProductDetailsPage() {
 
                             {discountPercent > 0 && (
                                 <del>
-                                    {formatPrice(product.price)}
+                                    {formatPrice(productData.price)}
                                 </del>
                             )}
                         </div>
 
                         <p className="product-details-stock">
                             {inStock
-                                ? product.stock <= 5
-                                    ? `Only ${product.stock} left in stock`
+                                ? productData.stock <= 5
+                                    ? `Only ${productData.stock} left in stock`
                                     : "In stock"
                                 : "Currently out of stock"}
                         </p>
 
                         <p className="product-details-description">
-                            {product.description ||
-                                `Explore ${product.name} from ${product.brand}. See the specifications below for more details.`}
+                            {productData.description ||
+                                `Explore ${productData.name} from ${productData.brand}. See the specifications below for more details.`}
                         </p>
 
                         <div className="product-purchase-controls">
@@ -178,7 +234,7 @@ export default function ProductDetailsPage() {
                                 <Form.Control
                                     type="number"
                                     min="1"
-                                    max={product.stock}
+                                    max={productData.stock}
                                     value={quantity}
                                     disabled={!inStock}
                                     onChange={(event) => {
@@ -192,7 +248,7 @@ export default function ProductDetailsPage() {
                                         if (
                                             Number.isInteger(parsed) &&
                                             parsed >= 1 &&
-                                            parsed <= product.stock
+                                            parsed <= productData.stock
                                         ) {
                                             setQuantity(parsed);
                                         }
@@ -210,7 +266,7 @@ export default function ProductDetailsPage() {
                                     !inStock ||
                                     !Number.isInteger(quantity) ||
                                     quantity < 1 ||
-                                    quantity > product.stock
+                                    quantity > productData.stock
                                 }
                                 onClick={handleAddToCart}
                             >

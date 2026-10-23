@@ -8,7 +8,7 @@ import ProductDisplay from "../components/ProductDisplay";
 import filters from "../data/filters";
 import SiteNavbar from "../components/layout/SiteNavbar";
 
-import { fetchProducts } from '../services/productService';
+import { fetchProducts, fetchProductFilterOptions } from '../services/productService';
 
 function createInitialFilterOptions(actualFilters) {
 
@@ -65,42 +65,76 @@ function buildApiFilters(filterOptions) {
     return result;
 }
     
-function ShopPage({ title, category, products}) {
+function ShopPage({ title, category}) {
 
-    const actualFilters = [];
-
-    filters[category].forEach((filter) => {
-        if (filter.filterType === "Checkbox") {
-            const availables = [...new Set(products.map(product => product[filter.filterName]).filter(Boolean))]
-
-            const actualFilter = {
-                ...filter,
-                filterSubcategories: availables
-            }
-
-            actualFilters.push(actualFilter);
-        } else if (filter.filterType === "Range") {
-
-            const values = products.map(product => product[filter.filterName]).filter(Number.isFinite);
-            const minValue = values.length ? Math.min(...values) : 0;
-            const maxValue = values.length ? Math.max(...values) : 0;
-
-            const actualFilter = {
-                ...filter,
-                filterMin: minValue,
-                filterMax: maxValue,
-            }
-
-            actualFilters.push(actualFilter);
-        }
-    })
-
-    const [filterOptions, setFilterOptions] = useState(() => createInitialFilterOptions(actualFilters));
+    const [serverFilterData, setServerFilterData] = useState(null);
+    const [filterOptionsLoading, setFilterOptionsLoading] = useState(false);
+    const [filterOptionsError, setFilterOptionsError] = useState(null);
 
     useEffect(() => {
+        let cancelled = false;
+
+        async function loadFilterOptions() {
+            setFilterOptionsLoading(true);
+            setFilterOptionsError(null);
+            setServerFilterData(null);
+
+            try {
+                const result = await fetchProductFilterOptions(category);
+
+                if (!cancelled) {
+                    setServerFilterData(result);
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    setFilterOptionsError(err.message);
+                }
+            } finally {
+                if (!cancelled) {
+                    setFilterOptionsLoading(false);
+                }
+            }
+        }
+
+        loadFilterOptions();
+
+        return () => {
+            cancelled = true;
+        }
+    }, [category]);
+
+    const actualFilters = useMemo(() => {
+        const definitions = filters[category] ?? [];
+
+        return definitions.map(filter => {
+            if (filter.filterType === "Checkbox") {
+                return {
+                    ...filter,
+                    filterSubcategories: serverFilterData?.options?.[filter.filterName] ?? []
+                };
+            }
+
+            if (filter.filterType === "Range") {
+
+                const range = serverFilterData?.ranges?.[filter.filterName];
+
+                return {
+                    ...filter,
+                    filterMin: range?.min ?? 0,
+                    filterMax: range?.max ?? 0
+                };
+            }
+        })
+    }, [category, serverFilterData]);
+
+    useEffect(() => {
+        if (!serverFilterData) return;
+
         setFilterOptions(createInitialFilterOptions(actualFilters));
         setCurrentPage(1);
-    }, [category]);
+    }, [category, serverFilterData, actualFilters]);
+
+    const [filterOptions, setFilterOptions] = useState(() => createInitialFilterOptions(actualFilters));
 
     const [backendProducts, setBackendProducts] = useState([]);
     const [pagination, setPagination] = useState({

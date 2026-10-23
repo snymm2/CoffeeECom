@@ -8,7 +8,6 @@ function loadCart() {
     try {
         const savedCart = localStorage.getItem(STORAGE_KEY)
 
-        
         if (!savedCart) {
             return [];
         }

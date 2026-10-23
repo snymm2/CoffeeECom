@@ -6,7 +6,8 @@ export async function fetchProducts({
     filters = {},
     sort = 'featured',
     page = 1,
-    limit = 12
+    limit = 12,
+    featured
 }) {
     const params = new URLSearchParams();
 
@@ -17,6 +18,10 @@ export async function fetchProducts({
     params.set('sort', sort);
     params.set('page', String(page));
     params.set('limit', String(limit));
+
+    if (featured !== undefined) {
+        params.set('featured', String(featured));
+    }
     
     const response = await fetch(`${API_BASE_URL}/products?${params.toString()}`);
 
@@ -48,4 +53,21 @@ export async function fetchProductById(id) {
     const product = await response.json();
 
     return {...product, id: product._id}
+}
+
+export async function fetchProductFilterOptions(category) {
+    const params = new URLSearchParams();
+
+    if (category) {
+        params.set("category", category);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/products/filter-options?${params.toString()}`);
+
+    if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error || `Failed to fetch filter options (${response.status})`);
+    }
+
+    return response.json();
 }

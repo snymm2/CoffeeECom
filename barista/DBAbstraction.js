@@ -46,11 +46,15 @@ class DBAbstraction {
         return this.products.findOne({_id: result.insertedId})
     }
 
-    async getProducts({category, search, filters = {}, sort = "featured", page = 1, limit = 12}) {
+    async getProducts({category, search, filters = {}, sort = "featured", page = 1, limit = 12, featured}) {
         const match = { isActive: true };
 
         if (category) {
             match.category = category;
+        }
+
+        if (featured !== undefined) {
+            match.isFeatured = featured;
         }
 
         if (search) {
@@ -240,6 +244,95 @@ class DBAbstraction {
         }
         
         return await this.products.deleteOne({_id: new ObjectId(productId)});
+    }
+
+    async getProductFilterOptions(category) {
+        const checkboxFields = [
+            "brand",
+            "type",
+            "coffeeType",
+            "roastLevel",
+            "grindSize",
+            "origin",
+            "process",
+            "machineType",
+            "brewingMethod",
+            "grinderType",
+            "material",
+            "operationMode",
+            "accessoryType",
+            "drinkwareType",
+            "storageType",
+            "supplyType",
+            "merchandiseType",
+            "color",
+            "location",
+            "variant",
+            "flavor",
+            "skillLevel"
+        ];
+
+        const rangeFields = [
+            "price",
+            "ratingAvg",
+            "weightGrams",
+            "volumeMl",
+            "powerWatts",
+            "pressureBar",
+            "capacityLiters",
+            "capacityMl",
+            "capacityGrams",
+            "grindSettings",
+            "quantity"
+        ];
+
+        // Only include active products, optionally within a category.
+        const match = { isActive: true };
+
+        if (category) {
+            match.category = category;
+        }
+
+        // Build one aggregation group containing all filter statistics.
+        const group = {};
+
+        for (const field of checkboxFields) {
+            group[field] = {$addToSet: `$${field}`};
+        }
+
+        for (const field of rangeFields) {
+            group[`${field}Min`] = { $min: `$${field}` };
+            group[`${field}Max`] = { $max: `$${field}` };
+        }
+
+        const [stats] = await this.products.aggregate([
+            { $match: match },
+            { $group: { _id: null, ...group }}
+        ]).toArray();
+
+        const options = {};
+        const ranges = {};
+
+        for (const field of checkboxFields) {
+            const values = (stats?.[field] ?? []).filter(value => typeof value === "string" && value.trim().length > 0);
+            
+            options[field] = [...new Set(values)].sort((a, b) => a.localeCompare(b));
+        }
+
+        for (const field of rangeFields) {
+            const min = stats?.[`${field}Min`];
+            const max = stats?.[`${field}Max`];
+
+            if (Number.isFinite(min) && Number.isFinite(max)) {
+                ranges[field] = { min, max};
+            }
+        }
+
+        return {
+            category: category ?? null,
+            options,
+            ranges
+        }
     }
 
     async close() {
