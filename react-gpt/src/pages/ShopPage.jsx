@@ -10,31 +10,50 @@ import SiteNavbar from "../components/layout/SiteNavbar";
 
 import { fetchProducts } from '../services/productService';
 
-function buildApiFilters(filterDefinitions, filterOptions) {
+function buildApiFilters(filterOptions) {
     const result = {};
 
-    for (const definition of filterDefinitions) {
-        const state = filterOptions[definition.filterName];
+    for (const [filterName, filterValues] of Object.entries(filterOptions)){
+        if (!filterValues?.active) continue;
 
-        if (!state?.active) continue;
-
-        if (definition.filterType === 'Checkbox') {
-            if (state.targets?.length) {
-                result[definition.filterName] = state.targets;
+        if (filterValues.type === "Checkbox") {
+            if (filterValues.targets?.length) {
+                result[filterName] = filterValues.targets;
             }
         }
 
-        if (definition.filterType === "Range") {
-            const range = state.current;
-
-            if (range && typeof range ==='object') {
-                result[definition.filterName] = {
-                    min: range.min,
-                    max: range.max
-                };
+        if (filterValues.type === "Range") {
+            if (filterValues.current) {
+                result[filterName] = {
+                    min: filterValues.min,
+                    max: filterValues.current
+                }
             }
         }
     }
+
+    // for (const definition of filterDefinitions) {
+    //     const state = filterOptions[definition.filterName];
+
+    //     if (!state?.active) continue;
+
+    //     if (definition.filterType === 'Checkbox') {
+    //         if (state.targets?.length) {
+    //             result[definition.filterName] = state.targets;
+    //         }
+    //     }
+
+    //     if (definition.filterType === "Range") {
+    //         const range = state.current;
+
+    //         if (range && typeof range === "number") {
+    //             result[definition.filterName] = {
+    //                 min: state.min,
+    //                 max: range
+    //             };
+    //         }
+    //     }
+    // }
 
     return result;
 }
@@ -93,7 +112,7 @@ function ShopPage({ title, category, products}) {
         )
     );
 
-    const [products, setProducts] = useState([]);
+    const [backendProducts, setBackendProducts] = useState([]);
     const [pagination, setPagination] = useState({
         page: 1,
         limit: 12,
@@ -107,10 +126,11 @@ function ShopPage({ title, category, products}) {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState("featured");
 
-    const apiFilters = useMemo(() => 
-        buildApiFilters(filters[category] ?? [], filterOptions), 
-        [category, filterOptions]
-    );
+    const apiFilters = useMemo(() => buildApiFilters(filterOptions),
+        [category, filterOptions]);
+
+    console.log("Filter Options: ", filterOptions);
+    console.log("API Filters", apiFilters);
 
     useEffect(() => {
         let cancelled = false;
@@ -131,12 +151,12 @@ function ShopPage({ title, category, products}) {
 
                 if (cancelled) return;
 
-                setProducts(result.data);
+                setBackendProducts(result.data);
                 setPagination(result.pagination);
             } catch (err) {
                 if (cancelled) return;
                 setError(err.message);
-                setProducts([]);
+                setBackendProducts([]);
             } finally {
                 if (!cancelled) {
                     setIsLoading(false);
@@ -277,12 +297,35 @@ function ShopPage({ title, category, products}) {
                 </aside>
                 <main
                     className="col-12 col-md-8 col-lg-9">
-                    <ProductDisplay 
-                        key={category} 
-                        title={title} 
-                        productCards={sortedProducts}
-                        sortBy={sortBy}
-                        onSortChange={setSortBy}></ProductDisplay>
+                    
+                    {
+                        error && (
+                            <div className="alert alert-danger" role="alert">
+                                {error}
+                            </div>
+                        )
+                    }
+
+                    {
+                        isLoading ? (
+                            <div className="text-center py-5">
+                                Loading products...
+                            </div>
+                        ) : (
+                            <ProductDisplay 
+                                key={category} 
+                                title={title} 
+                                productCards={sortedProducts}
+                                sortBy={sortBy}
+                                onSortChange={setSortBy} 
+                                currentPage={pagination.page}
+                                totalPages={pagination.totalPages}
+                                totalItems={pagination.totalItems}
+                                pageSize={pagination.limit}
+                                onPageChange={setCurrentPage}/>
+                        )
+                    }
+
                 </main>
             </Row>
         </Container>

@@ -3,7 +3,10 @@ import {Row, Col, Form} from "react-bootstrap"
 
 import "./ProductDisplay.css"
 
-function ProductDisplay({title, productCards, sortBy, onSortChange}) {
+function ProductDisplay({
+    title, productCards, sortBy, onSortChange,
+    currentPage, totalPages, totalItems, pageSize, onPageChange
+}) {
     return (
         <section className="product-display">
             <div className="product-display-toolbar">

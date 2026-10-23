@@ -13,7 +13,7 @@ export async function fetchProducts({
     if (category) params.set('category', category);
     if (search.trim()) params.set('search', search.trim());
 
-    params.set('filers', JSON.stringify(filters));
+    params.set('filters', JSON.stringify(filters));
     params.set('sort', sort);
     params.set('page', String(page));
     params.set('limit', String(limit));
