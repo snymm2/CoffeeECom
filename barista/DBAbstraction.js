@@ -429,7 +429,7 @@ class DBAbstraction {
                         throw createHttpError(`Invalid price/discount for ${product.name}.`, 409);
                     }
     
-                    const stockResult = await products.updateOne(
+                    const stockResult = await this.products.updateOne(
                         { _id: product._id, isActive: { $ne: false }, stock: { $gte: quantity } },
                         { $inc: { stock: -quantity } },
                         { session }
@@ -486,7 +486,7 @@ class DBAbstraction {
 
                     payment: {
                         method: paymentMethod,
-                        methodLabel: labels[paymentMethod],
+                        methodLabel: PAYMENT_METHODS[paymentMethod],
                         status: "pending",
                         reference: null,
                         isMock: paymentMethod !== "cash-on-delivery"
@@ -498,8 +498,8 @@ class DBAbstraction {
                     updatedAt: now
                 };
     
-                const insertResult = await orders.insertOne(order, {session});
-                order._id = result.insertedId;
+                const insertResult = await this.orders.insertOne(order, {session});
+                order._id = insertResult.insertedId;
                 createdOrder = order;
             })
             return createdOrder;
@@ -529,7 +529,7 @@ class DBAbstraction {
         try {
             await session.withTransaction(async () => {
                 const id = new ObjectId(orderId)
-                const order = await orders.findOne({ _id: id}, { session });
+                const order = await this.orders.findOne({ _id: id}, { session });
 
                 if (!order) {
                     throw createHttpError("Order not Found", 404);
@@ -550,18 +550,18 @@ class DBAbstraction {
                 if (failed) {
                     for (const item of order.items) {
                         const result = await this.products.updateOne(
-                            { _id: item.productId },
+                            { _id: item.productId ?? item.id ?? item._id },
                             { $inc: { stock: item.quantity }},
                             { session }
                         );
 
                         if (result.matchedCount !== 1) {
-                            throw new Error(`Could not restore stock for product ${item.productId}`);
+                            throw new Error(`Could not restore stock for product ${item.productId ?? item.id ?? item._id}`);
                         }
                     }
                 }
 
-                const updateResult = await orders.findOneAndUpdate(
+                const updateResult = await this.orders.findOneAndUpdate(
                     { 
                         _id: id, 
                         status: "pending_payment", 

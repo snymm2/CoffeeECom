@@ -193,12 +193,13 @@ app.delete("/products/:id", async (req, res, next) => {
     }
 })
 
+// Router for Handling Orders
+app.use("/orders", createOrderRouter(db));
+
 app.use((req, res) => {
     return sendError(res, 404, "Route not Found.")
 })
 
-// Router for Handling Orders
-app.use("/orders", createOrderRouter(db));
 
 // Centralized error-handling middleware.
 // Keep this after all routes.
