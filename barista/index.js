@@ -1,12 +1,14 @@
 'use strict'
 
+
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 
 const DBAbstraction = require("./DBAbstraction");
 const { validateProduct } = require('./productValidation');
-const { send } = require('process');
+const createOrderRouter = require("./orderRoutes")
+const { sendError } = require("./helpers");
 
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/";
 const port = process.env.PORT || 53140;
@@ -23,16 +25,6 @@ app.use(cors())
 const allowedCategories = new Set(['coffee', 'equipment', 'merch']);
 const allowedSorts = new Set(['featured', 'name-asc', 'price-asc', 'price-desc', 'rating-desc', 'popular', 'discount-disc']);
 const MAX_PAGE_SIZE = 100;
-
-function sendError(res, status, message, details) {
-    const response = {error: message}
-
-    if (details) {
-        response.details = details;
-    }
-
-    return res.status(status).json(response);
-}
 
 // Retrieves FilterOptions for the ShopPage
 app.get("/products/filter-options", async(req, res, next) => {
@@ -204,6 +196,9 @@ app.delete("/products/:id", async (req, res, next) => {
 app.use((req, res) => {
     return sendError(res, 404, "Route not Found.")
 })
+
+// Router for Handling Orders
+app.use("/orders", createOrderRouter(db));
 
 // Centralized error-handling middleware.
 // Keep this after all routes.

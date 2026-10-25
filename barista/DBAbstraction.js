@@ -2,6 +2,28 @@
 
 const { MongoClient, ObjectId } = require('mongodb');
 
+const DEMO_SHIPPING_FEE = 150;
+
+const PAYMENT_METHODS = {
+    "mock-esewa": "Mock eSewa",
+    "mock-khalti": "Mock Khalti",
+    "cash-on-delivery": "Cash on Deliery"
+}
+
+const createOrderNumber = () => {
+    return `CE-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+}
+
+const getUpdatedDocument = (result) => {
+    return result?.value ?? result ?? null;
+}
+
+const createHttpError = (message, statusCode = 400) => {
+    const error = new Error(message);
+    error,statusCode = statusCode;
+    return error;
+}
+
 class DBAbstraction {
     constructor(dbUrl) {
         this.dbUrl = dbUrl;
@@ -20,6 +42,9 @@ class DBAbstraction {
             const products = this.db.collection('products');
             await products.createIndex({sku: 1}, {unique: true});
 
+            const orders = this.db.collection('orders');
+            await orders.createIndex({orderNumber: 1}, { unique: true});
+
             console.log("Connected to Database Successfully");
         } catch (err) {
             await this.client.close().catch(() => {});
@@ -35,6 +60,13 @@ class DBAbstraction {
             throw new Error('Database has not been initialized.');
         }
         return this.db.collection('products');
+    }
+
+    get orders() {
+        if (!this.db) {
+            throw new Error('Database has not been initialized.');
+        }
+        return this.db.collection('orders');
     }
 
     isValidObjectId(id) {
@@ -333,6 +365,260 @@ class DBAbstraction {
             options,
             ranges
         }
+    }
+
+    async createOrder({customer, items, paymentMethod}) {
+
+        if (!this.client || !this.db) {
+            throw new Error("Database is not initialized.");
+        }
+        if (!Object.hasOwn(PAYMENT_METHODS, paymentMethod)) {
+            throw createHttpError("Invalid payment method.", 400);
+        }
+        if (!Array.isArray(items) || items.length === 0) {
+            throw createHttpError("Order must contain at least one item.", 400);
+        }
+        if (!customer || !customer.address) {
+            throw createHttpError("Customer and Address details are required.", 400);
+        }
+        if (!Number.isFinite(DEMO_SHIPPING_FEE) || DEMO_SHIPPING_FEE < 0) {
+            throw new Error("Invalid backend shipping fee configuration.");
+        }
+
+        const quantities = new Map();
+
+        for (const item of items) {
+            const id = item.productId ?? item.id;
+            if (!ObjectId.isValid(id)) {
+                throw createHttpError(`Invalid Product ID: ${id}`, 400);
+            }
+            if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99) {
+                throw createHttpError("Invalid item quantity.", 400);
+            }
+            const combinedQuantity = (quantities.get(id) || 0) + item.quantity;
+            if (combinedQuantity > 99) {
+                throw createHttpError("Combined quantity for a product cannot exceed 99.");
+            }
+            quantities.set(id, combinedQuantity);
+        }
+
+        const session = this.client.startSession();
+
+        try {
+            let createdOrder = null;
+            
+            await session.withTransaction(async() => {
+                const orderItems = [];
+                let subtotal = 0;
+    
+                for (const [id, quantity] of quantities) {
+                    const product = await this.products.findOne(
+                        {_id: new ObjectId(id), isActive: {$ne: false}},
+                        { session }
+                    );
+
+                    if (!product) {
+                        throw createHttpError(`Product ${id} not found or inactive.`, 409)
+                    }
+    
+                    const price = Number(product.price);
+                    const discount = Number(product.discountPercent ?? 0);
+    
+                    if (!Number.isFinite(price) || price < 0 || 
+                        !Number.isFinite(discount) || discount < 0 || discount > 1) {
+                        throw createHttpError(`Invalid price/discount for ${product.name}.`, 409);
+                    }
+    
+                    const stockResult = await products.updateOne(
+                        { _id: product._id, isActive: { $ne: false }, stock: { $gte: quantity } },
+                        { $inc: { stock: -quantity } },
+                        { session }
+                    );
+    
+                    if (stockResult.modifiedCount !== 1) {
+                        throw createHttpError(`Insufficient stock for ${product.name}.`, 409);
+                    }
+    
+                    // reserved.push({_id: product._id, quantity});
+    
+                    const unitPrice = Math.round(price * (1 - discount) * 100) / 100;
+                    const lineTotal = Math.round(unitPrice * quantity * 100) / 100;
+                    subtotal = Math.round((subtotal + lineTotal) * 100) / 100;
+    
+                    orderItems.push({
+                        productId: product._id,
+                        name: product.name,
+                        sku: product.sku || null,
+                        imageUrl: product.imageUrl || null,
+                        quantity,
+                        unitPrice,
+                        discountPercent: discount,
+                        lineTotal
+                    });
+                }
+
+                const shippingCost = DEMO_SHIPPING_FEE;
+                const total = Math.round((subtotal + shippingCost) * 100) / 100;
+                const now = new Date();
+
+                const order = {
+                    orderNumber: createOrderNumber(),
+
+                    customer: {
+                        name: customer.name.trim(),
+                        email: customer.email.trim().toLowerCase(),
+                        phone: customer.phone.trim(),
+                        address: {
+                            line1: customer.address.line1.trim(),
+                            line2: (customer.address.line2 || "").trim(),
+                            city: customer.address.city.trim(),
+                            region: (customer.address.region || "").trim(),
+                            postalCode: (customer.address.postalCode || "").trim(),
+                            country: (customer.address.country || "Nepal").trim(),
+                        }
+                    },
+
+                    items: orderItems,
+                    subtotal,
+                    shippingCost,
+                    total,
+                    currency: "NPR",
+
+                    payment: {
+                        method: paymentMethod,
+                        methodLabel: labels[paymentMethod],
+                        status: "pending",
+                        reference: null,
+                        isMock: paymentMethod !== "cash-on-delivery"
+                    },
+
+                    status: "pending_payment",
+                    stockReserved: true,
+                    createdAt: now,
+                    updatedAt: now
+                };
+    
+                const insertResult = await orders.insertOne(order, {session});
+                order._id = result.insertedId;
+                createdOrder = order;
+            })
+            return createdOrder;
+        } finally {
+            await session.endSession();
+        }
+    }
+
+    async getOrderById(orderId) {
+        if (!this.isValidObjectId(orderId)) {
+            return null;
+        }
+        return await this.orders.findOne({ _id: new ObjectId(orderId) });
+    }
+
+    async completeMockPayment(orderId, outcome) {
+        if (this.isValidObjectId(orderId)) {
+            throw createHttpError("Invalid Order ID", 400);
+        }
+
+        if (!["success", "failure"].includes(outcome)) {
+            throw createHttpError("Outcome must be 'success' or 'failure'", 400);
+        }
+
+        const session = this.client.startSession();
+
+        try {
+            await session.withTransaction(async () => {
+                const id = new ObjectId(orderId)
+                const order = await orders.findOne({ _id: id}, { session });
+
+                if (!order) {
+                    throw createHttpError("Order not Found", 404);
+                }
+                if (order.payment.method === "cash-on-delivery") {
+                    throw createHttpError("COD doesn't use mock online payments.", 400);
+                }
+        
+                if (order.status !== "pending_payment" || 
+                    order.payment.status !== "pending" || 
+                    order.stockReserved !== true) {
+                    throw createHttpError("Order isn't awaiting payment.", 409);
+                }
+
+                const failed = outcome === "failure";
+                const now = new Date();
+
+                if (failed) {
+                    for (const item of order.items) {
+                        const result = await this.products.updateOne(
+                            { _id: item.productId },
+                            { $inc: { stock: item.quantity }},
+                            { session }
+                        );
+
+                        if (result.matchedCount !== 1) {
+                            throw new Error(`Could not restore stock for product ${item.productId}`);
+                        }
+                    }
+                }
+
+                const updateResult = await orders.findOneAndUpdate(
+                    { 
+                        _id: id, 
+                        status: "pending_payment", 
+                        "payment.status": failed ? "failed" : "simulated_success", 
+                        "payment.reference": failed ? null : `MOCK-${Date.now().toString(36).toUpperCase()}`,
+                        stockReserved: false,
+                        updatedAt: now },
+                    {
+                        $set: {
+                            status: failed ? "payment_failed" : "confirmed",
+                            "payment.status": failed ? "failed" : "simulated_success",
+                            "payment.reference": failed ? null : `MOCK-${Date.now().toString(36).toUpperCase()}`,
+                            stockReserved: false, updatedAt: new Date(),
+                        }
+                    },
+                    { 
+                        session,
+                        returnDocument: "after" }
+                );
+
+                const updatedOrder = getUpdatedDocument(updateResult)
+
+                if (!updatedOrder) {
+                    throw createHttpError("Order state changed; Refresh and Retry.", 409);
+                }
+            });
+
+            return updatedOrder;
+        } finally {
+            await session.endSession();
+        }
+    }
+
+    async confirmCashOnDelivery(orderId) {
+
+        if (!this.isValidObjectId(orderId)) {
+            return null;
+        }
+
+        const updatedOrder = await this.orders.findOneAndUpdate(
+            { 
+                _id: new ObjectId(orderId), 
+                status: "pending_payment", 
+                "payment.method": "cash-on-delivery", 
+                "payment.status": "pending",
+                stockReserved: true},
+            { 
+                $set: { 
+                    status: "confirmed", 
+                    "payment.status": "pay_on_delivery", 
+                    stockReserved: false, 
+                    updatedAt: new Date() } 
+            },
+            { returnDocument: "after" }
+        );
+
+        return getUpdatedDocument(updatedOrder);
     }
 
     async close() {

@@ -286,6 +286,8 @@ function CheckoutPage() {
                                         )}
 
                                         <Button
+                                            as={Link}
+                                            to="/checkout/payment"
                                             type="submit"
                                             variant="dark"
                                             className="w-100 checkout-submit"
@@ -319,6 +321,10 @@ function CheckoutPage() {
                                                         }
                                                         alt=""
                                                         className="checkout-order-image"
+                                                        onError={(event) => {
+                                                            event.currentTarget.onerror = null;
+                                                            event.currentTarget.src = "/storefront/Default_Product_Image.png"
+                                                        }}
                                                     />
 
                                                     <div className="checkout-order-details">

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 import { Container, Row, Col, Button, Alert } from "react-bootstrap";
 import { Link } from "react-router";
-import { ArrowRight} from "react-bootstrap-icons";
+import { ArrowRight } from "react-bootstrap-icons";
 
 import FeaturedCard from "./FeaturedCard";
 import "./FeaturedSection.css"
@@ -20,7 +20,7 @@ function FeaturedSection() {
 
         async function loadFeaturedProducts() {
             setIsLoading(true);
-            setFeaturedProducts(null);
+            setFeaturedProducts([]);
             setError(null);
 
             try {
