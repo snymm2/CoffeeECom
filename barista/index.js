@@ -200,9 +200,7 @@ app.use((req, res) => {
     return sendError(res, 404, "Route not Found.")
 })
 
-
 // Centralized error-handling middleware.
-// Keep this after all routes.
 app.use((err, req, res, next) => {
     if (res.headersSent) {
         return next(err);

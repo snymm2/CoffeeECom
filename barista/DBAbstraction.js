@@ -7,7 +7,7 @@ const DEMO_SHIPPING_FEE = 150;
 const PAYMENT_METHODS = {
     "mock-esewa": "Mock eSewa",
     "mock-khalti": "Mock Khalti",
-    "cash-on-delivery": "Cash on Deliery"
+    "cash-on-delivery": "Cash on Delivery"
 }
 
 const createOrderNumber = () => {
@@ -467,12 +467,12 @@ class DBAbstraction {
                         email: customer.email.trim().toLowerCase(),
                         phone: customer.phone.trim(),
                         address: {
-                            line1: customer.address.line1.trim(),
-                            line2: (customer.address.line2 || "").trim(),
+                            street: customer.address.street.trim(),
                             city: customer.address.city.trim(),
-                            region: (customer.address.region || "").trim(),
+                            district: customer.address.district.trim(),
+                            province: (customer.address.province || "").trim(),
                             postalCode: (customer.address.postalCode || "").trim(),
-                            country: (customer.address.country || "Nepal").trim(),
+                            otherInstructions: (customer.address.otherInstructions || "").trim(),
                         }
                     },
 

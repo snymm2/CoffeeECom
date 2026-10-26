@@ -21,10 +21,10 @@ function validateOrder(body) {
             }
     
     if (!customerData?.address ||
-        !["line1", "city"].every(option =>
+        !["street", "city", "district"].every(option =>
             typeof customerData.address[option] === "string"
             && customerData.address[option].trim())) {
-                errors.push("Address Line 1 and City are required.");
+                errors.push("Street, City, and District are required.");
             }
     
     if (!Array.isArray(body.items) || !body.items.length) {

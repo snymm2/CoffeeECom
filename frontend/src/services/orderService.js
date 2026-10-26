@@ -1,7 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:53140";
 
 async function request(url, options) {
-    const response = await fetch(url, option)
+    const response = await fetch(url, options)
     const body = await response.json().catch(() => ({}));
     if (!response.ok) {
         const error = new Error(body.message || "Request Failed.");
