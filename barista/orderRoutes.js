@@ -41,7 +41,7 @@ function createOrderRouter(db) {
     orderRouter.post("/:id/mock-payment", async (req, res, next) => {
         try {
     
-            const { id } = req.params.id;
+            const { id } = req.params;
             const { outcome } = req.body ?? {};
     
             if (!["success", "failure"].includes(req.body?.outcome)) {
@@ -49,9 +49,8 @@ function createOrderRouter(db) {
             }
     
             const order = await db.completeMockPayment(id, outcome);
-    
             if (!order) {
-                return sendError(res, 404, "Order not found ot invalid order ID.a")
+                return sendError(res, 404, "Order not found or invalid order ID.")
             }
     
             const failed = outcome === 'failure';
@@ -60,7 +59,7 @@ function createOrderRouter(db) {
                 message: failed 
                     ? "Mock payment failed; stock released." 
                     : "Mock payment succeeded.",
-                order: publicOrder(updatedOrder)
+                order: publicOrder(order)
             });
         } catch (err) {
             next(err);

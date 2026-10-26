@@ -407,7 +407,7 @@ class DBAbstraction {
         try {
             let createdOrder = null;
             
-            await session.withTransaction(async() => {
+            await session.withTransaction(async () => {
                 const orderItems = [];
                 let subtotal = 0;
     
@@ -438,8 +438,6 @@ class DBAbstraction {
                     if (stockResult.modifiedCount !== 1) {
                         throw createHttpError(`Insufficient stock for ${product.name}.`, 409);
                     }
-    
-                    // reserved.push({_id: product._id, quantity});
     
                     const unitPrice = Math.round(price * (1 - discount) * 100) / 100;
                     const lineTotal = Math.round(unitPrice * quantity * 100) / 100;
@@ -510,13 +508,13 @@ class DBAbstraction {
 
     async getOrderById(orderId) {
         if (!this.isValidObjectId(orderId)) {
-            return null;
+            throw createHttpError("Invalid Order ID.", 400)
         }
         return await this.orders.findOne({ _id: new ObjectId(orderId) });
     }
 
     async completeMockPayment(orderId, outcome) {
-        if (this.isValidObjectId(orderId)) {
+        if (!this.isValidObjectId(orderId)) {
             throw createHttpError("Invalid Order ID", 400);
         }
 
@@ -527,6 +525,9 @@ class DBAbstraction {
         const session = this.client.startSession();
 
         try {
+
+            let updatedOrder = null;
+
             await session.withTransaction(async () => {
                 const id = new ObjectId(orderId)
                 const order = await this.orders.findOne({ _id: id}, { session });
@@ -564,17 +565,17 @@ class DBAbstraction {
                 const updateResult = await this.orders.findOneAndUpdate(
                     { 
                         _id: id, 
-                        status: "pending_payment", 
-                        "payment.status": failed ? "failed" : "simulated_success", 
-                        "payment.reference": failed ? null : `MOCK-${Date.now().toString(36).toUpperCase()}`,
-                        stockReserved: false,
-                        updatedAt: now },
+                        status: "pending_payment",
+                        "payment.status": "pending", 
+                        stockReserved: true,
+                    },
                     {
                         $set: {
                             status: failed ? "payment_failed" : "confirmed",
                             "payment.status": failed ? "failed" : "simulated_success",
                             "payment.reference": failed ? null : `MOCK-${Date.now().toString(36).toUpperCase()}`,
-                            stockReserved: false, updatedAt: new Date(),
+                            stockReserved: false,
+                            updatedAt: new Date(),
                         }
                     },
                     { 
@@ -582,14 +583,17 @@ class DBAbstraction {
                         returnDocument: "after" }
                 );
 
-                const updatedOrder = getUpdatedDocument(updateResult)
+                const updatedDocument= getUpdatedDocument(updateResult)
 
-                if (!updatedOrder) {
+                if (!updatedDocument) {
                     throw createHttpError("Order state changed; Refresh and Retry.", 409);
                 }
+
+                updatedOrder = updatedDocument
             });
 
             return updatedOrder;
+
         } finally {
             await session.endSession();
         }
