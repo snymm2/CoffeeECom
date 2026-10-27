@@ -10,6 +10,8 @@ const { validateProduct } = require('./productValidation');
 const createOrderRouter = require("./orderRoutes")
 const { sendError } = require("./helpers");
 
+const createAuthRouter = require("./auth/authRouter")
+
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/";
 const port = process.env.PORT || 53140;
 
@@ -25,6 +27,8 @@ app.use(cors())
 const allowedCategories = new Set(['coffee', 'equipment', 'merch']);
 const allowedSorts = new Set(['featured', 'name-asc', 'price-asc', 'price-desc', 'rating-desc', 'popular', 'discount-disc']);
 const MAX_PAGE_SIZE = 100;
+
+app.use("/auth", createAuthRouter(db.db))
 
 // Retrieves FilterOptions for the ShopPage
 app.get("/products/filter-options", async(req, res, next) => {

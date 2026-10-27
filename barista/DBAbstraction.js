@@ -45,6 +45,15 @@ class DBAbstraction {
             const orders = this.db.collection('orders');
             await orders.createIndex({orderNumber: 1}, { unique: true});
 
+            const users = this.db.collection("users");
+            await users.createIndex({username: 1}, {unique: true});
+
+            const adminSessions = this.db.collection("adminSessions");
+
+            await adminSessions.createIndex({ tokenHash: 1 }, { unique: true });
+            await adminSessions.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+            await adminSessions.createIndex({ userId: 1 });
+
             console.log("Connected to Database Successfully");
         } catch (err) {
             await this.client.close().catch(() => {});
@@ -67,6 +76,20 @@ class DBAbstraction {
             throw new Error('Database has not been initialized.');
         }
         return this.db.collection('orders');
+    }
+
+    get users() {
+        if (!this.db) {
+            throw new Error('Database has not been initialized.');
+        }
+        return this.db.collection('users');
+    }
+
+    get adminSessions() {
+        if (!this.db) {
+            throw new Error('Database has not been initialized.');
+        }
+        return this.db.collection('adminSessions');
     }
 
     isValidObjectId(id) {
