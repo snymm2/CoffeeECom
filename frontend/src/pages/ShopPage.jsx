@@ -68,8 +68,6 @@ function buildApiFilters(filterOptions) {
 function ShopPage({ title, category}) {
 
     const [serverFilterData, setServerFilterData] = useState(null);
-    const [filterOptionsLoading, setFilterOptionsLoading] = useState(false);
-    const [filterOptionsError, setFilterOptionsError] = useState(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -135,6 +133,8 @@ function ShopPage({ title, category}) {
     }, [category, serverFilterData, actualFilters]);
 
     const [filterOptions, setFilterOptions] = useState(() => createInitialFilterOptions(actualFilters));
+    const [filterOptionsLoading, setFilterOptionsLoading] = useState(false);
+    const [filterOptionsError, setFilterOptionsError] = useState(null);
 
     const [backendProducts, setBackendProducts] = useState([]);
     const [pagination, setPagination] = useState({
@@ -248,14 +248,31 @@ function ShopPage({ title, category}) {
             <Row>
                 <aside
                     className="col-12 col-md-4 col-lg-3">
+
+                    {
+                        filterOptionsError && (
+                            <div className="alert alert-danger" role="alert">
+                                {filterOptionsError}
+                            </div>
+                        )
+                    }
+
+                    {
+                        filterOptionsLoading ? (
+                            <div className="text-center py-5">
+                                Loading products...
+                            </div>
+                        ) : (
+                            <ProductsFilter 
+                                title={title}
+                                key={category}
+                                filterData={ actualFilters }
+                                filterOptions={filterOptions}
+                                onFilter={ handleFilterOptionsChange }
+                                onSearch={ handleSearchQueryChange }/>
+                        )
+                    }
                     
-                    <ProductsFilter 
-                        title={title}
-                        key={category}
-                        filterData={ actualFilters }
-                        filterOptions={filterOptions}
-                        onFilter={ handleFilterOptionsChange }
-                        onSearch={ handleSearchQueryChange }/>
                 </aside>
                 <main
                     className="col-12 col-md-8 col-lg-9">

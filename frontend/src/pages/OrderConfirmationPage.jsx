@@ -12,7 +12,7 @@ const formattedAmount = (amount) => {
 
 const formatStatus = (status = "") => status.replaceAll("_", " ");
 
-export default function OrderConfimationPage() {
+export default function OrderConfirmationPage() {
     const { orderId } = useParams();
     const location = useLocation();
 
