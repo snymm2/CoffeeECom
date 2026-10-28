@@ -1,6 +1,7 @@
 'use strict'
 
 const { MongoClient, ObjectId } = require('mongodb');
+const { token } = require('morgan');
 
 const DEMO_SHIPPING_FEE = 150;
 
@@ -49,7 +50,6 @@ class DBAbstraction {
             await users.createIndex({username: 1}, {unique: true});
 
             const adminSessions = this.db.collection("adminSessions");
-
             await adminSessions.createIndex({ tokenHash: 1 }, { unique: true });
             await adminSessions.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
             await adminSessions.createIndex({ userId: 1 });
@@ -96,6 +96,7 @@ class DBAbstraction {
         return typeof id === 'string' && ObjectId.isValid(id)
     }
 
+    // Products Related
     async insertProduct(productInfo) {
         const result = await this.products.insertOne(productInfo);
         return this.products.findOne({_id: result.insertedId})
@@ -390,6 +391,7 @@ class DBAbstraction {
         }
     }
 
+    // Orders Related
     async createOrder({customer, items, paymentMethod}) {
 
         if (!this.client || !this.db) {
@@ -412,7 +414,7 @@ class DBAbstraction {
 
         for (const item of items) {
             const id = item.productId ?? item.id;
-            if (!ObjectId.isValid(id)) {
+            if (!this.isValidObjectId(id)) {
                 throw createHttpError(`Invalid Product ID: ${id}`, 400);
             }
             if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99) {
@@ -646,6 +648,74 @@ class DBAbstraction {
         );
 
         return getUpdatedDocument(updatedOrder);
+    }
+
+    // Auth Related
+    async getAdminByUsername(username) {
+
+        if (typeof username !== "string" || !username.trim() || username.trim().length > 99) {
+            throw createHttpError("Invalid Username.", 400);
+        }
+        return await this.users.findOne({ username: username.trim(), isActive: true, role: "admin" });
+    }
+
+    async getAdminById(userId) {
+
+        if (!this.isValidObjectId(userId)) {
+            throw createHttpError("Invalid User Id.", 400);
+        }
+        return await this.users.findOne({ _id: new ObjectId(userId), isActive: true, role: "admin" });
+    }
+
+    async createSession(userId, tokenHash, sessionDurationMs) {
+
+        if (!this.isValidObjectId(userId)) {
+            throw createHttpError("Invalid User Id.", 400);
+        }
+
+        if (typeof tokenHash !== 'string' || !/^[a-f0-9]{64}$/i.test(tokenHash)) {
+            throw createHttpError("Invalid Session Token Hash.", 400);
+        }
+
+        if (!Number.isSafeInteger(sessionDurationMs) || sessionDurationMs <= 0) {
+            throw createHttpError("Invalid Session Duration.", 400)
+        }
+
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + sessionDurationMs);
+
+        const result = await this.adminSessions.insertOne({ 
+            userId: new ObjectId(userId), tokenHash: tokenHash, createdAt: now, expiresAt })
+
+        return result.insertedId;
+    }
+
+    async removeSessionByHash(tokenHash) {
+        if (typeof tokenHash !== 'string' || !/^[a-f0-9]{64}$/i.test(tokenHash)) {
+            throw createHttpError("Invalid Session Token Hash.", 400);
+        }
+
+        const result = await this.adminSessions.deleteOne({ tokenHash: tokenHash });
+        
+        return result.deletedCount;
+    }
+
+    async removeSessionById(sessionId) {
+
+        if (!this.isValidObjectId(sessionId)) {
+            throw createHttpError("Invalid Session ID.", 400);
+        }
+
+        const result = await this.adminSessions.deleteOne({ _id: new ObjectId(sessionId) });
+        return result.deletedCount;
+    }
+
+    async getSessionByHash(tokenHash) {
+
+        if (typeof tokenHash !== 'string' || !/^[a-f0-9]{64}$/i.test(tokenHash)) {
+            throw createHttpError("Invalid Session Token Hash.", 400);
+        }
+        return  await this.adminSessions.findOne({ tokenHash: tokenHash, expiresAt: { $gt: new Date()}});
     }
 
     async close() {

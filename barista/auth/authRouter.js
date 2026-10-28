@@ -1,19 +1,15 @@
 const express = require("express")
+const { randomBytes } = require("crypto")
+
 const { sendError } = require("../helpers")
-const { randomBytes } = require("node:crypto")
 const { verifyPassword } = require("./password")
 const { createAuthMiddleware, hashToken, setSessionCookie, clearSessionCookie } = require("./authMiddleware")
-const { send } = require("node:process")
-const { use } = require("react")
 
 const SESSION_DURATION_MS = 8 * 60 * 60 * 1000;
 const SESSION_DURATION_SECONDS = SESSION_DURATION_MS / 1000;
 
 function createAuthRouter(db) {
     const router = express.Router();
-
-    const users = db.collection("users");
-    const sessions = db.collection("adminSessions");
 
     const { requireAdmin } = createAuthMiddleware(db);
 
@@ -29,18 +25,14 @@ function createAuthRouter(db) {
                 }
             
             const normalizedUsername = username.trim();
-
-            const user = await users.findOne({username: normalizedUsername, isActive: true, role: "admin"});
+            
+            const user = await db.getAdminByUsername(normalizedUsername);
             if (!user || !(await verifyPassword(password, user.passwordSalt, user.passwordHash))) {
                 return sendError(res, 401, "Invalid username or password.")
             }
 
-            const now = new Date();
-            const expiresAt = new Date(now.getTime() + SESSION_DURATION_MS);
-
             const token = randomBytes(32).toString("hex");
-
-            await sessions.insertOne({userId: user._id, tokenHash: hashToken(token), createdAt: now, expiresAt})
+            await db.createSession(user._id.toString(), hashToken(token), SESSION_DURATION_MS)
 
             setSessionCookie(res, token, SESSION_DURATION_SECONDS);
 
@@ -64,7 +56,7 @@ function createAuthRouter(db) {
                 ?.slice("cc_admin_session=".length);
 
             if (token) {
-                await sessions.deleteOne({tokenHash: hashToken(token)})
+                await db.removeSessionByHash(hashToken(token))
             }
 
             clearSessionCookie(res);

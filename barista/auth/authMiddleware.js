@@ -1,6 +1,6 @@
 const { sendError } = require("../helpers");
-const { createHash } = require("node:crypto");
-const { read } = require("node:fs");
+const { createHash } = require("crypto");
+
 const SESSION_COOKIE = "cc_admin_session";
 
 function hashToken(token) {
@@ -66,8 +66,6 @@ function clearSessionCookie(res) {
 }
 
 function createAuthMiddleware(db) {
-    const sessions = db.collection("adminSessions");
-    const users = db.collection("users");
 
     async function requireAdmin(req, res, next) {
         try {
@@ -77,15 +75,15 @@ function createAuthMiddleware(db) {
                 return sendError(res, 401, "Authentication Required.");
             }
 
-            const session = await sessions.findOne({tokenHash: hashToken(token), expiresAt: { $gt: new Date() }});
+            const session = await db.getSessionByHash(hashToken(token));
             if (!session) {
                 clearSessionCookie(res);
                 return sendError(res, 401, "Session expired or invalid.");
             }
 
-            const user = await users.findOne({_id: session.userId, role:"admin", isActive: true});
+            const user = await db.getAdminById(session.userId.toString())
             if (!user) {
-                await sessions.deleteOne({_id: session._id});
+                await db.removeSessionById(session._id.toString())
                 clearSessionCookie(res);
                 return sendError(res, 403, "Administrator access required.")
             }
