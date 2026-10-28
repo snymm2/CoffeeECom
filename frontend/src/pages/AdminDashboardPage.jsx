@@ -14,12 +14,13 @@ const idOf = p => p?._id ?? p?.id;
 
 const parseProducts = d => 
     Array.isArray(d) 
-        ? Array.isArray(d?.products)
+        ? d
+        : Array.isArray(d?.products)
             ? d.products
             : Array.isArray(d?.data)
                 ? d.data
-                : []
-        : [];
+                : [];
+
 
 const formattedPrice = price => new Intl.NumberFormat("en-NP", {
     currency: "NPR",
@@ -132,6 +133,8 @@ export function AdminDashboardPage() {
             setLoggingOut(false);
         }
     }
+
+    console.log()
 
     return (
     <div className="admin-shell">
@@ -460,8 +463,7 @@ export function AdminDashboardPage() {
             </Modal.Header>
 
             <Modal.Body>
-                <p>Delete
-                    <b>{deleting?.name}</b>?
+                <p>Delete <b>{deleting?.name}</b>?
                 </p>
                 <p className="muted small mb-0">
                     This cannot be undone.

@@ -6,6 +6,9 @@ import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import ProductDetailsPage from "./pages/ProductDetailsPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import { AdminLoginPage } from "./pages/AdminLoginPage";
+import { AdminDashboardPage } from "./pages/AdminDashboardPage";
+import { AdminRoute } from "./pages/AdminRoute";
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { CartProvider } from "./context/CartContext";
@@ -26,6 +29,9 @@ function App() {
             <Route path="/checkout/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
 
             <Route path="/products/:id" element={<ProductDetailsPage />} />
+
+            <Route path="/admin/login" element={<AdminLoginPage/>} />
+            <Route path="/admin" element={<AdminRoute><AdminDashboardPage /></AdminRoute>} />
           </Routes>
 
           <SiteFooter />
@@ -34,4 +40,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

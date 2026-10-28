@@ -94,7 +94,7 @@ function validateProduct(product, { partial = false } = {}) {
 
     for (const field of fields) {
         if (!allowedFields.has(field)) {
-            errors.push(`Unknnown or Unsupported Field: ${field}.`);
+            errors.push(`Unknown or Unsupported Field: ${field}.`);
         }
     }
 

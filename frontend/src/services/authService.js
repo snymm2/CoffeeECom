@@ -28,7 +28,7 @@ export const authApi = {
 
     me: () => request("/auth/me"),
 
-    loutout: () => request("/auth/logout", {method: "POST"})
+    logout: () => request("/auth/logout", {method: "POST"})
 }
 
 export const productsApi = {

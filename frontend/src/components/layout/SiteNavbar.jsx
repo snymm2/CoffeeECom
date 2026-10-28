@@ -1,7 +1,7 @@
-import { useContext, useState } from "react";
-import { Container, Row, Col, Navbar, Nav, Button, Offcanvas, Badge } from 'react-bootstrap';
+import { useState } from "react";
+import { Container, Row, Col, Navbar, Nav, Button, Offcanvas } from 'react-bootstrap';
 import { Person, Cart3, List } from "react-bootstrap-icons";
-import { Link, NavLink } from "react-router"
+import { Link, NavLink, useLocation } from "react-router"
 import { useCart } from "../../context/CartContext";
 import "./SiteNavbar.css";
 
@@ -36,189 +36,204 @@ const navigationContexts = {
     ],
 };
 
-function SiteNavbar( {context = "home"}) {
+function getNavigationContext(pathname) {
+    if (pathname === "/") return "home";
+    if (pathname === "/cart") return "cart";
+    if (pathname === "/checkout" || pathname.startsWith("/checkout/")) return "checkout";
+    if (pathname === "/shop" || pathname.startsWith("/shop/")) return "shop";
+    if (pathname === "/farmers" || pathname.startsWith("/farmers/")) return "farmers";
+    if (pathname === "/discover" || pathname.startsWith("/discover/")) return "discover";
+
+    return "home"
+}
+
+function SiteNavbar( {context: contextOverride}) {
     const [showMenu, setShowMenu] = useState(false);
-
-    const contextualLinks = navigationContexts[context] ?? navigationContexts.home;
-
     const closeMenu = () => setShowMenu(false);
 
     const {cartCount} = useCart();
 
+    const location = useLocation();
+    const context = contextOverride ?? getNavigationContext(location.pathname);
+    const contextualLinks = navigationContexts[context] ?? navigationContexts.home;
+
+    if (location.pathname === "/admin" || location.pathname.startsWith("/admin/")) {
+        return null;
+    }
+
     return (
-        <header
-            className="site-header">
-                <div
-                    className="site-global-bar">
-                        <Container fluid="lg">
-                            <Row className="align-items-center">
-                                <Col xs={7}>
-                                    <span className="site-tagline">
-                                        Nepal-grown coffee, thoughtfully discovered.
-                                    </span>
-                                </Col>
+        <header className="site-header">
+            <div className="site-global-bar">
+                <Container fluid="lg">
+                    <Row className="align-items-center">
+                        <Col xs={7}>
+                            <span className="site-tagline">
+                                Nepal-grown coffee, thoughtfully discovered.
+                            </span>
+                        </Col>
 
-                                <Col xs={5}
-                                    className="d-flex justify-content-end gap-3">
-                                        <Nav.Link
-                                            as={Link}
-                                            to="/account"
-                                            className="site-global-link">
-                                                <Person aria-hidden="true"/>
-                                                <span className="d-none d-sm-inline">
-                                                    Account
-                                                </span>
-                                        </Nav.Link>
-
-                                        <Nav.Link
-                                            as={Link}
-                                            to="/cart"
-                                            className="site-global-link"
-                                            aria-label={`Shopping Cart, ${cartCount} items`}>
-                                            <Cart3 aria-hidden="true" />
-                                            <span className="d-none d-sm-inline">
-                                                Cart 
-                                            </span>
-                                            {" "}
-                                            <span className="site-cart-count">
-                                                {cartCount}
-                                            </span>
-                                        </Nav.Link>
-                                </Col>
-                            </Row>
-                        </Container>
-                </div>
-
-                <Navbar className="site-main-nav py-2">
-                    <Container fluid="lg">
-                        <Button
-                            variant="link"
-                            className="site-menu-toggle d-lg-none"
-                            aria-label="Open Navigation Menu"
-                            onClick={() => setShowMenu(true)}>
-                                <List size={26} />
-                        </Button>
-
-                        <Nav
-                            className="site-main-links d-none d-lg-flex">
-                                <Nav.Link as={NavLink} to="/discover">
-                                    Discover
-                                </Nav.Link>
-                                <Nav.Link as={NavLink} to="/shop">
-                                    Shop
-                                </Nav.Link>
-                        </Nav>
-
-                        <Navbar.Brand as={Link} to="/" className="site-logo mx-auto">
-                            <img
-                                src="/Logo.png"
-                                alt="Code & Coffee Home">
-                            </img>
-                        </Navbar.Brand>
-
-                        <Nav
-                            className="site-main-links d-none d-lg-flex">
-                            <Nav.Link as={NavLink} to="/our-farmers">
-                                Our Farmers
-                            </Nav.Link>
-                            <Nav.Link as={NavLink} to="/brew-guides">
-                                Brew Guides
-                            </Nav.Link>
-                            <Nav.Link as={NavLink} to="/journal">
-                                Journal
-                            </Nav.Link>
-                        </Nav>
-
-                        <Button
-                            as={Link}
-                            to="/cart"
-                            variant="link"
-                            className="site-mobile-cart d-lg-none"
-                            aria-label={`Shopping Cart, ${cartCount} items`}>
-                                <Cart3 size={22} />
-                                <span className="site-cart-count">{cartCount}</span>
-                        </Button>
-                    </Container>
-                </Navbar>
-
-                {
-                    contextualLinks.length > 0 && (
-                        <div className="site-context-nav d-none d-lg-block">
-                            <Container fluid="lg">
-                                <Nav className="justify-content-center">
-                                    {contextualLinks.map((item) => (
-                                        <Nav.Link
-                                            key={item.to}
-                                            as={NavLink}
-                                            to={item.to}
-                                        >
-                                            {item.label}
-                                        </Nav.Link>
-                                    ))}
-                                </Nav>
-                            </Container>
-                        </div>
-                    )
-                }
-
-                {/* Mobile navigation drawer */}
-                <Navbar.Offcanvas
-                    show={showMenu}
-                    onHide={closeMenu}
-                    placement="start"
-                    className="site-mobile-drawer"
-                    aria-labelledby="site-mobile-menu-title"
-                >
-                    <Offcanvas.Header closeButton>
-                        <Offcanvas.Title id="site-mobile-menu-title">
-                            Explore Code-n-Coffee
-                        </Offcanvas.Title>
-                    </Offcanvas.Header>
-
-                    <Offcanvas.Body>
-                        <Nav className="flex-column">
-                            <Nav.Link
-                                as={NavLink}
-                                to="/"
-                                onClick={closeMenu}>
-                                Home
-                            </Nav.Link>
-                            <Nav.Link
-                                as={NavLink}
-                                to="/shop"
-                                onClick={closeMenu}>
-                                Shop All
-                            </Nav.Link>
-
-                            {contextualLinks.map((item) => (
+                        <Col 
+                            xs={5}
+                            className="d-flex justify-content-end gap-3">
                                 <Nav.Link
-                                    key={item.to}
-                                    as={NavLink}
-                                    to={item.to}
-                                    onClick={closeMenu}>
-                                    {item.label}
+                                    as={Link}
+                                    to="/admin"
+                                    className="site-global-link">
+                                        <Person aria-hidden="true"/>
+                                        <span className="d-none d-sm-inline">
+                                            Account
+                                        </span>
                                 </Nav.Link>
-                            ))}
 
-                            <hr />
+                                <Nav.Link
+                                    as={Link}
+                                    to="/cart"
+                                    className="site-global-link"
+                                    aria-label={`Shopping Cart, ${cartCount} items`}>
+                                    <Cart3 aria-hidden="true" />
+                                    <span className="d-none d-sm-inline">
+                                        Cart 
+                                    </span>
+                                    {" "}
+                                    <span className="site-cart-count">
+                                        {cartCount}
+                                    </span>
+                                </Nav.Link>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
 
-                            <Nav.Link
-                                as={NavLink}
-                                to="/account"
-                                onClick={closeMenu}>
-                                Account
+            <Navbar className="site-main-nav py-2">
+                <Container fluid="lg">
+                    <Button
+                        variant="link"
+                        className="site-menu-toggle d-lg-none"
+                        aria-label="Open Navigation Menu"
+                        onClick={() => setShowMenu(true)}>
+                            <List size={26} />
+                    </Button>
+
+                    <Nav
+                        className="site-main-links d-none d-lg-flex">
+                            <Nav.Link as={NavLink} to="/discover">
+                                Discover
                             </Nav.Link>
-
-                            <Nav.Link
-                                as={NavLink}
-                                to="/cart"
-                                onClick={closeMenu}>
-                                <span className="site-cart-count">{cartCount}</span>
-                                Cart
+                            <Nav.Link as={NavLink} to="/shop">
+                                Shop
                             </Nav.Link>
-                        </Nav>
-                    </Offcanvas.Body>
-                </Navbar.Offcanvas>
+                    </Nav>
+
+                    <Navbar.Brand as={Link} to="/" className="site-logo mx-auto">
+                        <img
+                            src="/Logo.png"
+                            alt="Code & Coffee Home">
+                        </img>
+                    </Navbar.Brand>
+
+                    <Nav
+                        className="site-main-links d-none d-lg-flex">
+                        <Nav.Link as={NavLink} to="/our-farmers">
+                            Our Farmers
+                        </Nav.Link>
+                        <Nav.Link as={NavLink} to="/brew-guides">
+                            Brew Guides
+                        </Nav.Link>
+                        <Nav.Link as={NavLink} to="/journal">
+                            Journal
+                        </Nav.Link>
+                    </Nav>
+
+                    <Button
+                        as={Link}
+                        to="/cart"
+                        variant="link"
+                        className="site-mobile-cart d-lg-none"
+                        aria-label={`Shopping Cart, ${cartCount} items`}>
+                            <Cart3 size={22} />
+                            <span className="site-cart-count">{cartCount}</span>
+                    </Button>
+                </Container>
+            </Navbar>
+
+            {
+                contextualLinks.length > 0 && (
+                    <div className="site-context-nav d-none d-lg-block">
+                        <Container fluid="lg">
+                            <Nav className="justify-content-center">
+                                {contextualLinks.map((item) => (
+                                    <Nav.Link
+                                        key={item.to}
+                                        as={NavLink}
+                                        to={item.to}
+                                    >
+                                        {item.label}
+                                    </Nav.Link>
+                                ))}
+                            </Nav>
+                        </Container>
+                    </div>
+                )
+            }
+
+            {/* Mobile navigation drawer */}
+            <Navbar.Offcanvas
+                show={showMenu}
+                onHide={closeMenu}
+                placement="start"
+                className="site-mobile-drawer"
+                aria-labelledby="site-mobile-menu-title"
+            >
+                <Offcanvas.Header closeButton>
+                    <Offcanvas.Title id="site-mobile-menu-title">
+                        Explore Code-n-Coffee
+                    </Offcanvas.Title>
+                </Offcanvas.Header>
+
+                <Offcanvas.Body>
+                    <Nav className="flex-column">
+                        <Nav.Link
+                            as={NavLink}
+                            to="/"
+                            onClick={closeMenu}>
+                            Home
+                        </Nav.Link>
+                        <Nav.Link
+                            as={NavLink}
+                            to="/shop"
+                            onClick={closeMenu}>
+                            Shop All
+                        </Nav.Link>
+
+                        {contextualLinks.map((item) => (
+                            <Nav.Link
+                                key={item.to}
+                                as={NavLink}
+                                to={item.to}
+                                onClick={closeMenu}>
+                                {item.label}
+                            </Nav.Link>
+                        ))}
+
+                        <hr />
+
+                        <Nav.Link
+                            as={NavLink}
+                            to="/account"
+                            onClick={closeMenu}>
+                            Account
+                        </Nav.Link>
+
+                        <Nav.Link
+                            as={NavLink}
+                            to="/cart"
+                            onClick={closeMenu}>
+                            <span className="site-cart-count">{cartCount}</span>
+                            {" "}Cart
+                        </Nav.Link>
+                    </Nav>
+                </Offcanvas.Body>
+            </Navbar.Offcanvas>
         </header>
     )
 }

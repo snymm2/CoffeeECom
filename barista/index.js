@@ -17,11 +17,17 @@ const port = process.env.PORT || 53140;
 const db = new DBAbstraction(uri);
 const app = express();
 
+const corsOptions = {
+    origin: 'http://localhost:5173',
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(cors())
+app.use(cors(corsOptions))
 
 // Router for Handling Auth
 app.use("/auth", createAuthRouter(db))

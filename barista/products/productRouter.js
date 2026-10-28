@@ -143,6 +143,34 @@ function createProductRouter(db) {
     })
 
     // Updates Product Info
+    productRouter.put("/:id", requireAdmin, async (req, res, next) => {
+        try {
+
+            const { id } = req.params;
+
+            if (!db.isValidObjectId(id)) {
+                sendError(res, 400, "Invalid Product ID.");
+            }
+
+            const validation = validateProduct(req.body, {partial: false});
+
+            if (!validation.valid) {
+                console.log(validation.errors)
+                return sendError(res, 400, "Product Validation Failed.", validation.errors);
+            }
+
+            const updatedProduct = await db.updateProduct(id, req.body);
+
+            if (!updatedProduct) {
+                return sendError(res, 404, "Product not Found.");
+            }
+
+            return res.status(200).json(updatedProduct);
+        } catch (err) {
+            next(err);
+        }
+    });
+
     productRouter.patch("/:id", requireAdmin, async (req, res, next) => {
         try {
 

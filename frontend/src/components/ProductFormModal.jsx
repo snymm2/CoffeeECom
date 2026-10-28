@@ -17,7 +17,7 @@ const emptyProduct = {
     roastLevel: "", 
     origin: "", 
     tastingNotes: "", 
-    grind: ""
+    grindSize: ""
 }
 
 const details = {
@@ -26,7 +26,7 @@ const details = {
         { k: "roastLevel", l: "Roast level", select: ["Light", "Medium", "Medium-Dark", "Dark"] }, 
         { k: "origin", l: "Origin", p: "Lamjung, Nepal" }, 
         { k: "tastingNotes", l: "Tasting notes", p: "Floral, citrus, chocolate" }, 
-        { k: "grind", l: "Grind option", p: "Whole bean / Ground" }
+        { k: "grindSize", l: "Grind option", p: "Whole bean / Ground" }
     ],
     equipment: [
         { k: "material", l: "Material", p: "Stainless steel, glass" }, 
@@ -40,15 +40,15 @@ const details = {
 };
 
 export function ProductFormModal({show, product, saving, onHide, onSave}) {
-    const [form, setForm] = useState(blank); 
+    const [form, setForm] = useState(emptyProduct); 
     const [error, setError] = useState("");
 
     useEffect(() => { 
         if (show) { 
             setError(""); 
             setForm(product 
-                ? { ...blank, ...product, price: product.price ?? "", stock: product.stock ?? 0, discountPercent: product.discountPercent ?? 0 } 
-                : { ...blank }); 
+                ? { ...emptyProduct, ...product, price: product.price ?? "", stock: product.stock ?? 0, discountPercent: product.discountPercent ?? 0 } 
+                : { ...emptyProduct }); 
         } 
     }, [show, product]);
 
@@ -83,6 +83,9 @@ export function ProductFormModal({show, product, saving, onHide, onSave}) {
             isActive: Boolean(form.isActive) 
         };
 
+        delete payload._id;
+        delete payload.id;
+
         try { 
             await onSave(payload); 
         } catch (err) { 
@@ -96,20 +99,22 @@ export function ProductFormModal({show, product, saving, onHide, onSave}) {
         onHide={onHide} 
         size="lg" 
         centered 
-        scrollable>
+        scrollable
+        dialogClassName="product-modal-dialog">
 
-        <Form onSubmit={submit}>
-            <Modal.Header closeButton={!saving}>
-                <div>
-                    <span className="eyebrow">
-                        {product ? "UPDATE CATALOGUE" : "GROW YOUR CATALOGUE"}
-                    </span>
-                    
-                    <Modal.Title>
-                        {product ? "Edit product" : "Add a product"}
-                    </Modal.Title>
-                </div>
-            </Modal.Header>
+        <Modal.Header closeButton={!saving}>
+            <div>
+                <span className="eyebrow">
+                    {product ? "UPDATE CATALOGUE" : "GROW YOUR CATALOGUE"}
+                </span>
+
+                <Modal.Title>
+                    {product ? "Edit product" : "Add a product"}
+                </Modal.Title>
+            </div>
+        </Modal.Header>
+
+        <Form onSubmit={submit} className="product-modal-form">
 
             <Modal.Body>
                 {error && 
