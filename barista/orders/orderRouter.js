@@ -1,7 +1,7 @@
 const express = require("express");
 
 const { validateOrder, METHODS } = require("./orderValidation");
-const { sendError } = require("./helpers")
+const { sendError } = require("../helpers")
 
 const publicOrder = (order) => {
     if (!order) return;

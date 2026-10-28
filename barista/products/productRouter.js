@@ -1,6 +1,8 @@
 const express = require("express")
 
-const { sendError } = require("./helpers")
+const { sendError } = require("../helpers")
+const { validateProduct } = require("./productValidation")
+const { createAuthMiddleware } = require("../auth/authMiddleware")
 
 const allowedCategories = new Set(['coffee', 'equipment', 'merch']);
 const allowedSorts = new Set(['featured', 'name-asc', 'price-asc', 'price-desc', 'rating-desc', 'popular', 'discount-disc']);
@@ -9,6 +11,7 @@ const MAX_PAGE_SIZE = 100;
 function createProductRouter(db) {
 
     const productRouter = express.Router();
+    const { requireAdmin } = createAuthMiddleware(db);
 
     // Retrieves FilterOptions for the ShopPage
     productRouter.get("/filter-options", async (req, res, next) => {
@@ -29,7 +32,7 @@ function createProductRouter(db) {
         }
     });
 
-    // Retrieves all Products
+    // Retrieves all Products of a category
     productRouter.get("/", async (req, res, next) => {
         try {
             const { category, search = '', sort = 'featured', filters: filtersParam = '{}' } = req.query;
@@ -93,6 +96,15 @@ function createProductRouter(db) {
         }
     })
 
+    productRouter.get("/all", async (req, res, next) => {
+        try {
+            const result = await db.getAllProducts();
+            return res.status(200).json(result);
+        } catch (err) {
+            next(err);
+        }
+    })
+
     // Retrieves Product Info from Product ID
     productRouter.get("/:id", async (req, res, next) => {
         try {
@@ -114,7 +126,7 @@ function createProductRouter(db) {
     })
 
     // Inserts Product into Database
-    productRouter.post("/", async (req, res, next) => {
+    productRouter.post("/", requireAdmin, async (req, res, next) => {
         try {
             const validation = validateProduct(req.body)
 
@@ -131,7 +143,7 @@ function createProductRouter(db) {
     })
 
     // Updates Product Info
-    productRouter.patch("/:id", async (req, res, next) => {
+    productRouter.patch("/:id", requireAdmin, async (req, res, next) => {
         try {
 
             const { id } = req.params;
@@ -159,7 +171,7 @@ function createProductRouter(db) {
     });
 
     // Removes Product from Database
-    productRouter.delete("/:id", async (req, res, next) => {
+    productRouter.delete("/:id", requireAdmin, async (req, res, next) => {
         try {
 
             const { id } = req.params;

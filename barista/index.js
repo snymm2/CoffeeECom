@@ -7,8 +7,8 @@ const cors = require('cors');
 const DBAbstraction = require("./DBAbstraction");
 const { sendError } = require("./helpers");
 
-const createProductRouter = require("./productRouter")
-const createOrderRouter = require("./orderRoutes")
+const createProductRouter = require("./products/productRouter")
+const createOrderRouter = require("./orders/orderRouter")
 const createAuthRouter = require("./auth/authRouter")
 
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/";
