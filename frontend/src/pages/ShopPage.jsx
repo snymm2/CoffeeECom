@@ -6,7 +6,6 @@ import ProductsFilter from "../components/ProductsFilter";
 import ProductDisplay from "../components/ProductDisplay";
 
 import filters from "../data/filters";
-import SiteNavbar from "../components/layout/SiteNavbar";
 
 import { fetchProducts, fetchProductFilterOptions } from '../services/productService';
 
@@ -239,8 +238,6 @@ function ShopPage({ title, category}) {
 
     return (
         <>
-        <SiteNavbar context="shop" />
-
         <Container
             className="py-4"
             fluid

@@ -5,7 +5,7 @@ const emptyProduct = {
     sku: "",
     name: "",
     brand: "",
-    category: "",
+    category: "coffee",
     type: "", 
     price: "", 
     discountPercent: 0, 
@@ -13,7 +13,8 @@ const emptyProduct = {
     stock: 0, 
     isFeatured: false, 
     isActive: true, 
-    coffeeType: "", 
+    coffeeType: "",
+    process: "",
     roastLevel: "", 
     origin: "", 
     tastingNotes: "", 
@@ -22,7 +23,8 @@ const emptyProduct = {
 
 const details = {
     coffee: [
-        { k: "coffeeType", l: "Coffee type", p: "Arabica" }, 
+        { k: "coffeeType", l: "Coffee type", p: "Arabica" },
+        { k: "process", l: "Process", p: "Natural"},
         { k: "roastLevel", l: "Roast level", select: ["Light", "Medium", "Medium-Dark", "Dark"] }, 
         { k: "origin", l: "Origin", p: "Lamjung, Nepal" }, 
         { k: "tastingNotes", l: "Tasting notes", p: "Floral, citrus, chocolate" }, 
@@ -61,6 +63,7 @@ export function ProductFormModal({show, product, saving, onHide, onSave}) {
         const price = Number(form.price)
         const stock = Number(form.stock)
         const discountPercent = Number(form.discountPercent);
+        const tastingNotes = form.tastingNotes.split(",").map(item => item.trim())
 
         if (!form.sku.trim() || !form.name.trim()) return setError("SKU and product name are required.");
 
@@ -78,7 +81,8 @@ export function ProductFormModal({show, product, saving, onHide, onSave}) {
             type: form.type.trim(), 
             price, 
             stock, 
-            discountPercent, 
+            discountPercent,
+            tastingNotes,
             isFeatured: Boolean(form.isFeatured), 
             isActive: Boolean(form.isActive) 
         };

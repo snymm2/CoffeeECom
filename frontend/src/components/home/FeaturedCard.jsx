@@ -9,7 +9,7 @@ function FeaturedCard({productInfo}) {
     const {
         id,
         name,
-        location,
+        origin,
         process,
         tastingNotes = [],
         roastLevel,
@@ -65,20 +65,23 @@ function FeaturedCard({productInfo}) {
                 </div>
 
                 <p className="featured-card-origin">
-                    {location} <span aria-hidden="true">·</span> {process}
+                    {origin} <span aria-hidden="true">·</span> {process}
                 </p>
+                
+                {tastingNotes && (
+                    <div
+                        className="featured-tasting-notes"
+                        aria-label={`Tasting notes: ${tastingNotes.join(", ")}`}>
 
-                <div
-                    className="featured-tasting-notes"
-                    aria-label={`Tasting notes: ${tastingNotes.join(", ")}`}>
-
-                    {tastingNotes.map((note) => (
-                        <span key={note}
-                            className="featured-tasting-note">
-                            {note}
-                        </span>
-                    ))}
-                </div>
+                        {tastingNotes.map((note) => (
+                            <span key={note}
+                                className="featured-tasting-note">
+                                {note}
+                            </span>
+                        ))}
+                    </div>
+                )}
+                
 
                 <div className="featured-card-bottom mt-auto">
                     <p className="featured-card-price">

@@ -27,7 +27,7 @@ function FeaturedSection() {
                 const result = await fetchProducts({
                     category: "coffee",
                     featured: true,
-                    sort: "featured",
+                    sort: "random",
                     page: 1,
                     limit: 4
                 });

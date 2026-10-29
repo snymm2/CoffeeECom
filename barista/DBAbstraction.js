@@ -213,6 +213,17 @@ class DBAbstraction {
         const selectedSort = sortOptions[sort] || sortOptions.featured;
         const skip = (page - 1) * limit;
 
+        const dataPipeline = sort === 'random'
+            ? [
+                { $sample: { size: skip + limit } },
+                { $skip: skip }
+            ]
+            : [
+                { $sort: selectedSort },
+                { $skip: skip },
+                { $limit: limit }
+            ];
+
         const pipeline = [
             { $match: match },
             { $addFields: {
@@ -229,9 +240,7 @@ class DBAbstraction {
             {
                 $facet: {
                     data: [
-                        { $sort: selectedSort },
-                        { $skip: skip },
-                        { $limit: limit },
+                        ...dataPipeline,
                         {
                             $project: {
                                 effectivePrice: 0

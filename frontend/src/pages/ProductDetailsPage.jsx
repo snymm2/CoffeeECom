@@ -95,7 +95,6 @@ export default function ProductDetailsPage() {
     if (isLoading) {
         return (
             <>
-                <SiteNavbar context="home" />
                 <Container className="product-details-page py-5">
                     <div className="text-center py-5">
                         Loading Product Data...
@@ -108,8 +107,6 @@ export default function ProductDetailsPage() {
     if (error || !productData) {
         return (
             <>
-                <SiteNavbar context="home" />
-
                 <Container className="product-details-page py-5">
                     <Alert variant={error ? "danger" : "warning"}>
                         <Alert.Heading>
@@ -152,8 +149,6 @@ export default function ProductDetailsPage() {
 
     return (
     <>
-        <SiteNavbar context="home" />
-
         <Container className="product-details-page py-4 py-lg-5">
             <nav className="product-breadcrumb mb-4">
                 <Link to="/">Home</Link>

@@ -8,7 +8,6 @@ import { Trash } from 'react-bootstrap-icons';
 import './CartPage.css'
 
 import { DEMO_SHIPPING_FEE } from '../config/storeConfig';
-import SiteNavbar from '../components/layout/SiteNavbar';
 
 function CartPage() {
     const {
@@ -28,7 +27,6 @@ function CartPage() {
 
     return (
         <>
-            <SiteNavbar context='cart' />
             <section className='cart-page'>
                 <Container>
                     <div className='cart-page-header'>

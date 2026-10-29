@@ -5,7 +5,7 @@ const { validateProduct } = require("./productValidation")
 const { createAuthMiddleware } = require("../auth/authMiddleware")
 
 const allowedCategories = new Set(['coffee', 'equipment', 'merch']);
-const allowedSorts = new Set(['featured', 'name-asc', 'price-asc', 'price-desc', 'rating-desc', 'popular', 'discount-disc']);
+const allowedSorts = new Set(['featured', 'name-asc', 'price-asc', 'price-desc', 'rating-desc', 'popular', 'discount-desc', 'random']);
 const MAX_PAGE_SIZE = 100;
 
 function createProductRouter(db) {

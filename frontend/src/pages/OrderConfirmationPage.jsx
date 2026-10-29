@@ -65,7 +65,6 @@ export default function OrderConfirmationPage() {
     if (loading) {
         return (
             <>
-            <SiteNavbar context="home"/>
             <main className="order-page">
                 <Container className="order-container">
                     <div className="order-loading">
@@ -83,7 +82,6 @@ export default function OrderConfirmationPage() {
     if (error || !order) {
         return (
         <>
-        <SiteNavbar context="home"/>
         <main className="order-page">
             <Container className="order-container">
                 <Card className="order-panel">
@@ -157,8 +155,6 @@ export default function OrderConfirmationPage() {
 
     return (
         <>
-        <SiteNavbar context="home"/>
-
         <main className="order-page">
             <Container className="order-container">
                 <div className="order-breadcrumb">
