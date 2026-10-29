@@ -15,7 +15,7 @@ export function AdminLoginPage() {
     const [busy, setBusy] = useState(false);
 
     const navigate = useNavigate();
-    const lcoation = useLocation();
+    const location = useLocation();
 
     async function submit(e) {
         e.preventDefault();
@@ -29,6 +29,7 @@ export function AdminLoginPage() {
         setBusy(true);
         try {
             await authApi.login(username.trim(), password);
+            console.log("hello")
             const next = location.state?.from?.pathname;
             navigate(next && next !== "/admin/login" ? next : "/admin", { replace: true });
         } catch (err) {

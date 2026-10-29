@@ -1,7 +1,8 @@
 'use strict'
 
 const { MongoClient, ObjectId } = require('mongodb');
-const { token } = require('morgan');
+
+const { removeProductImage } = require("./products/productImageUpload");
 
 const DEMO_SHIPPING_FEE = 150;
 
@@ -308,6 +309,9 @@ class DBAbstraction {
             return null;
         }
         
+        const product = await this.products.findOne({_id: new ObjectId(productId)});
+
+        await removeProductImage(product.imageUrl);
         return await this.products.deleteOne({_id: new ObjectId(productId)});
     }
 

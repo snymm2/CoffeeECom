@@ -3,6 +3,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+const path = require("path");
 
 const DBAbstraction = require("./DBAbstraction");
 const { sendError } = require("./helpers");
@@ -28,6 +29,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(cors(corsOptions))
+
+app.use(
+    "/uploads", 
+    express.static(path.resolve(process.cwd(), "uploads"), {dotfiles: "deny", index: false})
+);
 
 // Router for Handling Auth
 app.use("/auth", createAuthRouter(db))

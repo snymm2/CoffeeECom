@@ -2,6 +2,8 @@ import { Card, Badge, Button } from 'react-bootstrap'
 import { Link } from 'react-router';
 import { useCart } from '../../context/CartContext';
 
+import { resolveProductImageUrl } from '../../helpers/ResolveImageUrl';
+
 function FeaturedCard({productInfo}) {
 
     const {addToCart} = useCart();
@@ -23,8 +25,6 @@ function FeaturedCard({productInfo}) {
         maximumFractionDigits: 0
     }).format(price);
 
-    const updatedImageUrl = imageUrl ? imageUrl : fallbackImage;
-
     return (
         <Card
             className='featured-card h-100'>
@@ -36,7 +36,7 @@ function FeaturedCard({productInfo}) {
 
                     <div className='featured-card-image-wrapper'>
                         <Card.Img
-                            src={updatedImageUrl}
+                            src={resolveProductImageUrl(imageUrl)}
                             alt={name}
                             className='featured-card-image'
                             loading='lazy'

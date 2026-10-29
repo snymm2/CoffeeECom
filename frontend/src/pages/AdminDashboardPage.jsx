@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 
 import { authApi, productsApi } from "../services/authService";
 import { ProductFormModal } from "../components/ProductFormModal";
+import { resolveProductImageUrl } from "../helpers/ResolveImageUrl";
 
 import "./admin.css";
 
@@ -341,7 +342,7 @@ export function AdminDashboardPage() {
                                                         <span className="product-thumb">
                                                             {p.imageUrl
                                                                 ? <img
-                                                                    src={p.imageUrl}
+                                                                    src={resolveProductImageUrl(p.imageUrl)}
                                                                     alt=""
                                                                     onError={e => { e.currentTarget.style.display = "none"; }} />
                                                                 : <FiCoffee />}

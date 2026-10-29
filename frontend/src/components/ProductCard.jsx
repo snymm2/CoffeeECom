@@ -1,7 +1,9 @@
-import {Card, Button, Image, Badge} from 'react-bootstrap'
+import {Card, Button, Badge} from 'react-bootstrap'
 import { useCart } from '../context/CartContext';
 
 import { Link } from 'react-router';
+
+import { resolveProductImageUrl } from '../helpers/ResolveImageUrl';
 
 import "./ProductCard.css"
 
@@ -38,7 +40,7 @@ function ProductCard({ productInfo }) {
                     aria-label={`View ${name}`}>
 
                     <Card.Img
-                        src={updatedImageUrl}
+                        src={resolveProductImageUrl(updatedImageUrl)}
                         alt={name}
                         className='product-card-image'
                         onError={(event) => {

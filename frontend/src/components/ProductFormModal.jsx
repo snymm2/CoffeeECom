@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, Col, Form, Modal, Row, Spinner } from "react-bootstrap";
 
+import { resolveProductImageUrl } from "../helpers/ResolveImageUrl";
+
 const emptyProduct = {
     sku: "",
     name: "",
@@ -45,14 +47,37 @@ export function ProductFormModal({show, product, saving, onHide, onSave}) {
     const [form, setForm] = useState(emptyProduct); 
     const [error, setError] = useState("");
 
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState("");
+
     useEffect(() => { 
-        if (show) { 
-            setError(""); 
-            setForm(product 
-                ? { ...emptyProduct, ...product, price: product.price ?? "", stock: product.stock ?? 0, discountPercent: product.discountPercent ?? 0 } 
-                : { ...emptyProduct }); 
-        } 
+        if (!show) return;
+
+        setError("");
+        setImageFile(null);
+
+        setForm(
+            product 
+                ? { 
+                    ...emptyProduct, 
+                    ...product, 
+                    price: product.price ?? "", 
+                    stock: product.stock ?? 0, 
+                    discountPercent: product.discountPercent ?? 0 } 
+                : { ...emptyProduct });
+        
+        setImagePreview(product?.imageUrl || "");
+        
     }, [show, product]);
+
+    useEffect(() => {
+        if (!imageFile) return;
+
+        const objectUrl = URL.createObjectURL(imageFile);
+        setImagePreview(objectUrl);
+
+        return () => URL.revokeObjectURL(objectUrl);
+    }, [imageFile]);
 
     const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -63,8 +88,11 @@ export function ProductFormModal({show, product, saving, onHide, onSave}) {
         const price = Number(form.price)
         const stock = Number(form.stock)
         const discountPercent = Number(form.discountPercent);
-        const tastingNotes = form.tastingNotes.split(",").map(item => item.trim())
-
+        
+        const tastingNotes = typeof form.tastingNotes === "string" 
+            ? form.tastingNotes.split(",").map(item => item.trim())
+            : form.tastingNotes;
+            
         if (!form.sku.trim() || !form.name.trim()) return setError("SKU and product name are required.");
 
         if (!Number.isFinite(price) || price < 0) return setError("Enter a valid non-negative price.");
@@ -91,7 +119,7 @@ export function ProductFormModal({show, product, saving, onHide, onSave}) {
         delete payload.id;
 
         try { 
-            await onSave(payload); 
+            await onSave({...payload, imageFile}); 
         } catch (err) { 
             setError(err.message || "Unable to save product."); 
         }
@@ -178,14 +206,53 @@ export function ProductFormModal({show, product, saving, onHide, onSave}) {
                     </Col>
 
                     <Col md={6}>
-                        <Form.Label>Image URL / path</Form.Label>
-                        <Form.Control value={form.imageUrl} 
-                        onChange={e => set("imageUrl", e.target.value)} 
-                        placeholder="/storefront/product.jpg" 
-                        disabled={saving} />
+                        <Form.Label>Product Image</Form.Label>
+
+                        { imagePreview && (
+                            <div className="mb-3">
+                                <img 
+                                    src={resolveProductImageUrl(imagePreview)}
+                                    alt="Product Preview"
+                                    className="product-image-preview"/>
+                            </div>
+                        )}
+
+                        <Form.Control
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            disabled={saving}
+                            onChange={e => {
+                                const file = e.target.files?.[0] || null;
+                                if (!file) return;
+
+                                if (file.size > 5 * 1024 * 1024) {
+                                    setError("Image must be 5 MB or smaller.");
+                                    e.target.value = "";
+                                    return;
+                                }
+
+                                setError("");
+                                setImageFile(file);
+                            }} />
+
                         <Form.Text muted>
-                            Use a path served by your storefront or a full URL.
+                            Choose a JPEG, PNG, or WebP image, up to 5 MB.
+                            {product?.imageUrl && !imageFile
+                                ? "The current image will be kept if no replacement is selected."
+                                : ""}
                         </Form.Text>
+
+                        {imageFile && (
+                            <Button
+                                variant="link"
+                                size="sm"
+                                className="px-0"
+                                disabled={saving}
+                                onClick={() => setImageFile(null)}
+                            >
+                                Remove selected replacement
+                            </Button>
+                        )}
                     </Col>
                 </Row>
 
