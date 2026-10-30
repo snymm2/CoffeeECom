@@ -2,12 +2,12 @@ import { useEffect, useState, useMemo } from "react";
 
 import { Container, Row } from "react-bootstrap";
 
-import ProductsFilter from "../components/ProductsFilter";
-import ProductDisplay from "../components/ProductDisplay";
+import ProductsFilter from "../../components/shop/ProductsFilter";
+import ProductDisplay from "../../components/shop/ProductDisplay";
 
-import filters from "../data/filters";
+import filters from "../../data/filters";
 
-import { fetchProducts, fetchProductFilterOptions } from '../services/productService';
+import { fetchProducts, fetchProductFilterOptions } from '../../services/productService';
 
 function createInitialFilterOptions(actualFilters) {
 

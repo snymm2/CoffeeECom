@@ -1,0 +1,436 @@
+.brewing-page {
+    --brew-ink: #292d25;
+    --brew-muted: #6f746a;
+    --brew-cream: #f5f2e9;
+    --brew-paper: #fbfaf6;
+    --brew-green: #59664d;
+    color: var(--brew-ink);
+    padding: 1rem 0 5rem
+}
+
+.brew-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .55rem;
+    color: var(--brew-muted);
+    font-size: .85rem;
+    padding: 1rem 0 1.25rem
+}
+
+.brew-breadcrumb a,
+.brew-text-link,
+.brew-next-link a {
+    color: var(--brew-green);
+    text-decoration: none
+}
+
+.brew-breadcrumb a:hover,
+.brew-text-link:hover,
+.brew-next-link a:hover {
+    text-decoration: underline
+}
+
+.brew-hero {
+    position: relative;
+    min-height: 440px;
+    display: flex;
+    align-items: end;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    background: #59604f;
+    color: white
+}
+
+.brew-hero__image,
+.brew-hero__shade {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%
+}
+
+.brew-hero__image {
+    object-fit: cover
+}
+
+.brew-hero__shade {
+    background: linear-gradient(90deg, rgba(18, 23, 17, .82), rgba(18, 23, 17, .38) 58%, rgba(18, 23, 17, .08))
+}
+
+.brew-hero__content {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    padding: clamp(2rem, 6vw, 5rem)
+}
+
+.brew-hero h1,
+.roast-hero h1 {
+    font-family: Georgia, serif;
+    font-size: clamp(2.8rem, 6vw, 5.2rem);
+    line-height: 1;
+    margin: .5rem 0 1rem
+}
+
+.brew-hero p {
+    max-width: 600px;
+    font-size: 1.08rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, .9)
+}
+
+.brew-eyebrow {
+    display: block;
+    color: var(--brew-green);
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    font-size: .72rem;
+    font-weight: 700;
+    margin-bottom: .65rem
+}
+
+.brew-hero .brew-eyebrow {
+    color: #e0d8bd
+}
+
+.brew-section {
+    padding: 4.5rem 0 0
+}
+
+.brew-section__heading {
+    max-width: 720px;
+    margin-bottom: 1.6rem
+}
+
+.brew-section__heading h2 {
+    font-family: Georgia, serif;
+    font-size: clamp(2rem, 4vw, 3.1rem);
+    margin: 0 0 .65rem
+}
+
+.brew-section__heading p {
+    color: var(--brew-muted);
+    line-height: 1.7;
+    margin: 0
+}
+
+.brew-recipe-card,
+.brew-info-card,
+.brew-related-card,
+.brew-product-card {
+    border: 1px solid #e8e5db;
+    border-radius: 1rem;
+    background: var(--brew-paper);
+    box-shadow: none
+}
+
+.brew-recipe-card .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: .55rem
+}
+
+.brew-recipe-card small,
+.brew-product-card small,
+.brew-related-card small {
+    color: var(--brew-muted)
+}
+
+.brew-recipe-card strong {
+    font-family: Georgia, serif;
+    font-size: 1.3rem
+}
+
+.brew-main-video {
+    display: block;
+    width: 100%;
+    max-height: 650px;
+    background: #151713;
+    border-radius: 1rem
+}
+
+.brew-video-placeholder {
+    min-height: 360px;
+    border-radius: 1rem;
+    padding: clamp(2rem, 6vw, 4rem);
+    display: flex;
+    align-items: end;
+    color: white;
+    background-color: #4e5948;
+    background-size: cover;
+    background-position: center
+}
+
+.brew-video-placeholder>div {
+    max-width: 560px
+}
+
+.brew-video-placeholder .brew-eyebrow {
+    color: #e5ddc7
+}
+
+.brew-video-placeholder h3 {
+    font-family: Georgia, serif;
+    font-size: clamp(2rem, 4vw, 3rem)
+}
+
+.brew-video-placeholder p {
+    color: rgba(255, 255, 255, .85)
+}
+
+.brew-step {
+    padding: 1.5rem 0 2.5rem;
+    border-bottom: 1px solid #e9e6dd
+}
+
+.brew-step:last-child {
+    border-bottom: 0
+}
+
+.brew-step__image-wrap {
+    position: relative;
+    overflow: hidden;
+    min-height: 230px;
+    aspect-ratio: 5/3;
+    background: var(--brew-cream);
+    border-radius: 1rem
+}
+
+.brew-step__image-wrap img {
+    width: 100%;
+    height: 100%;
+    min-height: 230px;
+    position: absolute;
+    inset: 0;
+    object-fit: cover
+}
+
+.brew-step__image-wrap span {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    padding: .45rem .7rem;
+    border-radius: 50px;
+    background: var(--brew-paper);
+    font-weight: 700
+}
+
+.brew-step__copy {
+    max-width: 550px;
+    padding: 1rem clamp(.25rem, 3vw, 2rem)
+}
+
+.brew-step__copy h3,
+.brew-info-card h3 {
+    font-family: Georgia, serif;
+    font-size: 1.65rem
+}
+
+.brew-step__copy p,
+.brew-info-card p {
+    color: var(--brew-muted);
+    line-height: 1.75
+}
+
+.brew-info-card .card-body {
+    padding: 1.5rem
+}
+
+.brew-chip {
+    display: inline-block;
+    border-radius: 50px;
+    padding: .35rem .75rem;
+    background: #e9ecdf;
+    color: #47513d;
+    font-size: .8rem;
+    font-weight: 600
+}
+
+.brew-tips {
+    padding-left: 1.2rem;
+    margin: 0;
+    color: var(--brew-muted);
+    line-height: 2
+}
+
+.brew-troubleshooting {
+    border: 1px solid #e8e5db;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: var(--brew-paper)
+}
+
+.brew-troubleshooting thead th {
+    background: var(--brew-cream);
+    color: var(--brew-ink)
+}
+
+.brew-troubleshooting th,
+.brew-troubleshooting td {
+    padding: 1rem 1.2rem
+}
+
+.brew-related-card__image-link {
+    position: relative;
+    display: block;
+    aspect-ratio: 16/9;
+    background: var(--brew-cream);
+    overflow: hidden
+}
+
+.brew-related-card__image-link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover
+}
+
+.brew-play-mark {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-size: 4rem;
+    text-shadow: 0 2px 12px #000
+}
+
+.brew-related-card .card-body,
+.brew-product-card .card-body {
+    padding: 1.1rem
+}
+
+.brew-related-card .card-title,
+.brew-product-card .card-title {
+    font-family: Georgia, serif;
+    font-size: 1.2rem;
+    margin: .35rem 0
+}
+
+.brew-related-card .card-text {
+    color: var(--brew-muted);
+    font-size: .92rem;
+    line-height: 1.6
+}
+
+.brew-product-card__image {
+    display: block;
+    aspect-ratio: 1;
+    background: var(--brew-cream);
+    overflow: hidden
+}
+
+.brew-product-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: .75rem
+}
+
+.brew-next-link {
+    margin-top: 4rem;
+    padding: 2rem;
+    background: var(--brew-cream);
+    border-radius: 1rem
+}
+
+.brew-next-link p {
+    font-family: Georgia, serif;
+    font-size: 1.5rem;
+    margin-bottom: 1rem
+}
+
+.roast-hero {
+    padding: clamp(3rem, 8vw, 7rem) clamp(1.5rem, 6vw, 5rem);
+    border-radius: 1.25rem;
+    background: var(--brew-cream)
+}
+
+.roast-hero h1 {
+    max-width: 800px
+}
+
+.roast-hero p {
+    max-width: 720px;
+    color: var(--brew-muted);
+    font-size: 1.1rem;
+    line-height: 1.8
+}
+
+.roast-comparison {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem
+}
+
+.roast-card {
+    overflow: hidden;
+    border: 1px solid #e8e5db;
+    border-radius: 1rem;
+    background: var(--brew-paper)
+}
+
+.roast-card>img {
+    width: 100%;
+    aspect-ratio: 5/3;
+    object-fit: cover;
+    background: var(--brew-cream)
+}
+
+.roast-card__body {
+    padding: 1.4rem
+}
+
+.roast-card h3 {
+    font-family: Georgia, serif;
+    font-size: 1.7rem
+}
+
+.roast-card p,
+.roast-card dd {
+    color: var(--brew-muted);
+    line-height: 1.65
+}
+
+.roast-card dl {
+    margin: 1.25rem 0
+}
+
+.roast-card dl>div {
+    padding: .65rem 0;
+    border-top: 1px solid #e8e5db
+}
+
+.roast-card dt {
+    font-size: .8rem;
+    color: var(--brew-muted);
+    font-weight: 600
+}
+
+.roast-card dd {
+    margin: .2rem 0 0
+}
+
+@media(max-width:767.98px) {
+    .brew-hero {
+        min-height: 420px
+    }
+
+    .brew-hero__shade {
+        background: linear-gradient(0deg, rgba(18, 23, 17, .85), rgba(18, 23, 17, .2))
+    }
+
+    .brew-section {
+        padding-top: 3.25rem
+    }
+
+    .roast-comparison {
+        grid-template-columns: 1fr
+    }
+
+    .brew-troubleshooting th,
+    .brew-troubleshooting td {
+        padding: .8rem;
+        min-width: 150px
+    }
+}
+

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router";
 import { Spinner } from "react-bootstrap";
-import { authApi } from "../services/authService";
+import { authApi } from "../../services/authService";
 
 export function AdminRoute( {children} ) {
     const [status, setStatus] = useState("checking");

@@ -3,7 +3,7 @@ import { Alert, Button, Form, Spinner } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router";
 import { FiCoffee, FiEye, FiEyeOff, FiLock } from "react-icons/fi";
 
-import { authApi } from "../services/authService";
+import { authApi } from "../../services/authService";
 import "./admin.css";
 
 export function AdminLoginPage() {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, Col, Form, Modal, Row, Spinner } from "react-bootstrap";
 
-import { resolveProductImageUrl } from "../helpers/ResolveImageUrl";
+import { resolveProductImageUrl } from "../../helpers/ResolveImageUrl";
 
 const emptyProduct = {
     sku: "",

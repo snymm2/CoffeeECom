@@ -1,9 +1,9 @@
 import {Card, Button, Badge} from 'react-bootstrap'
-import { useCart } from '../context/CartContext';
+import { useCart } from '../../context/CartContext';
 
 import { Link } from 'react-router';
 
-import { resolveProductImageUrl } from '../helpers/ResolveImageUrl';
+import { resolveProductImageUrl } from '../../helpers/ResolveImageUrl';
 
 import "./ProductCard.css"
 

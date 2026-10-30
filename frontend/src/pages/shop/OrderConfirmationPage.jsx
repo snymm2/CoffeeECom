@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useLocation } from "react-router";
 import { Button, Card, Container, Spinner, Table } from "react-bootstrap";
-import { fetchOrder } from "../services/orderService";
-import SiteNavbar from "../components/layout/SiteNavbar";
+import { fetchOrder } from "../../services/orderService";
 
 import "./OrderConfirmationPage.css"
 

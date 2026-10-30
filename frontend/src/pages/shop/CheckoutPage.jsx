@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Container, Row, Col, Card, Form, Button, Spinner, Alert } from 'react-bootstrap';
 
-import { useCart } from '../context/CartContext';
-import { DEMO_SHIPPING_FEE } from "../config/storeConfig";
+import { useCart } from '../../context/CartContext';
+import { DEMO_SHIPPING_FEE } from "../../config/storeConfig";
 
 import "./CheckoutPage.css"
 
-import { completeMockPayment, confirmCashOnDelivery, createOrder } from "../services/orderService";
+import { completeMockPayment, confirmCashOnDelivery, createOrder } from "../../services/orderService";
 
 const emptyCustomer = {
     name: "",

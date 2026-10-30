@@ -1,13 +1,13 @@
 import { Link } from 'react-router';
 import { Container, Row, Col, Button, Form, Card } from 'react-bootstrap';
 
-import { useCart } from '../context/CartContext';
+import { useCart } from '../../context/CartContext';
 
 import { Trash } from 'react-bootstrap-icons';
 
 import './CartPage.css'
 
-import { DEMO_SHIPPING_FEE } from '../config/storeConfig';
+import { DEMO_SHIPPING_FEE } from '../../config/storeConfig';
 
 function CartPage() {
     const {

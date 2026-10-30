@@ -4,8 +4,10 @@ import { Alert, Badge, Button, Col, Container, Form, Row } from "react-bootstrap
 
 import { fetchProductById } from "../services/productService";
 import { useCart } from "../context/CartContext";
+
+import { resolveProductImageUrl } from "../helpers/ResolveImageUrl";
+
 import "./ProductDetailsPage.css";
-import SiteNavbar from "../components/layout/SiteNavbar";
 
 
 const HIDDEN_FIELDS = new Set([
@@ -162,7 +164,7 @@ export default function ProductDetailsPage() {
                 <Col lg={6}>
                     <div className="product-details-image">
                         <img
-                            src={productData.imageUrl}
+                            src={resolveProductImageUrl(productData.imageUrl)}
                             alt={productData.name}
                             onError={(event) => {
                                 event.currentTarget.onerror = null;

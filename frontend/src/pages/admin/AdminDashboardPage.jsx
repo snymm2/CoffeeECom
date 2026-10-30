@@ -3,9 +3,9 @@ import { Alert, Badge, Button, Card, Col, Container, Dropdown, Form, InputGroup,
 import { FiCoffee, FiEdit2, FiLogOut, FiPackage, FiPlus, FiRefreshCw, FiSearch, FiSlash, FiTrash2 } from "react-icons/fi";
 import { useNavigate } from "react-router";
 
-import { authApi, productsApi } from "../services/authService";
-import { ProductFormModal } from "../components/ProductFormModal";
-import { resolveProductImageUrl } from "../helpers/ResolveImageUrl";
+import { authApi, productsApi } from "../../services/authService";
+import { ProductFormModal } from "../../components/admin/ProductFormModal";
+import { resolveProductImageUrl } from "../../helpers/ResolveImageUrl";
 
 import "./admin.css";
 
